@@ -1,0 +1,148 @@
+<div class="overview-page">
+  <div class="page-top animate-fadeInUp">
+    <h1>Statistics</h1>
+    <p class="page-sub">Understand your emotional patterns at a glance.</p>
+    <div class="period-tabs">
+      @for (p of periods; track p.days) {
+        <button class="period-btn" [class.active]="activePeriod() === p.days" (click)="setPeriod(p.days)">
+          {{ p.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row animate-fadeInUp delay-1">
+    <div class="summary-card mc-card">
+      <div class="sc-icon">📝</div>
+      <div class="sc-body">
+        <span class="sc-label">Total Entries</span>
+        <span class="sc-value">{{ summary()?.totalEntries ?? 0 }}</span>
+      </div>
+    </div>
+    <div class="summary-card mc-card">
+      <div class="sc-icon">😊</div>
+      <div class="sc-body">
+        <span class="sc-label">Average Mood</span>
+        <span class="sc-value">{{ summary()?.averageMoodLabel ?? '—' }}</span>
+      </div>
+    </div>
+    <div class="summary-card mc-card">
+      <div class="sc-icon">🔥</div>
+      <div class="sc-body">
+        <span class="sc-label">Current Streak</span>
+        <span class="sc-value">{{ streak()?.currentStreak ?? 0 }}<span class="sc-unit">d</span></span>
+      </div>
+    </div>
+    <div class="summary-card mc-card">
+      <div class="sc-icon">🏆</div>
+      <div class="sc-body">
+        <span class="sc-label">Best Streak</span>
+        <span class="sc-value">{{ streak()?.longestStreak ?? 0 }}<span class="sc-unit">d</span></span>
+      </div>
+    </div>
+    <div class="summary-card mc-card">
+      <div class="sc-icon">❤️</div>
+      <div class="sc-body">
+        <span class="sc-label">Top Mood</span>
+        <span class="sc-value small">{{ summary()?.mostUsedMood ?? '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="trend-card mc-card animate-fadeInUp delay-2">
+    <div class="card-header">
+      <h3>Mood Trend</h3>
+      <span class="trend-period">Last {{ activePeriod() }} days</span>
+    </div>
+
+    @if (trendLoading()) {
+      <div class="chart-loading">
+        <div class="skeleton chart-skel"></div>
+      </div>
+    } @else {
+      <div class="chart-area">
+        @if (trend().length > 0) {
+          <svg class="trend-svg" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#9a7a4a"/>
+                <stop offset="100%" stop-color="#c9a96e"/>
+              </linearGradient>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
+            @for (y of gridYs; track y) {
+              <line [attr.x1]="40" [attr.y1]="y" [attr.x2]="680" [attr.y2]="y"
+                stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            }
+
+            @for (l of yLabels; track l.label) {
+              <text [attr.x]="32" [attr.y]="l.y + 4" fill="rgba(255,255,255,0.3)"
+                font-size="10" text-anchor="end" font-family="DM Mono, monospace">{{ l.label }}</text>
+            }
+
+            <path [attr.d]="areaPath()" fill="url(#areaGrad)" opacity="0.3"/>
+            <path [attr.d]="linePath()" fill="none" stroke="url(#lineGrad)"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+            @for (pt of trendPoints(); track pt.x) {
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="5"
+                fill="var(--bg-card)" stroke="var(--accent-gold)" stroke-width="2"/>
+              <text [attr.x]="pt.x" [attr.y]="pt.y - 12"
+                fill="rgba(255,255,255,0.6)" font-size="14" text-anchor="middle">{{ pt.emoji }}</text>
+            }
+
+            @for (pt of trendLabels(); track pt.x) {
+              <text [attr.x]="pt.x" y="195" fill="rgba(255,255,255,0.3)"
+                font-size="9" text-anchor="middle" font-family="DM Mono, monospace">{{ pt.label }}</text>
+            }
+          </svg>
+        } @else {
+          <div class="no-data">
+            <span>📉</span>
+            <p>Not enough data. Keep logging your mood!</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Mood Distribution -->
+  @if (trend().length > 0) {
+    <div class="distribution-card mc-card animate-fadeInUp delay-3">
+      <div class="card-header">
+        <h3>Mood Distribution</h3>
+        <span class="trend-period">{{ activePeriod() }} days</span>
+      </div>
+      <div class="distribution-list">
+        @for (d of moodDistribution(); track d.emoji) {
+          <div class="dist-item">
+            <span class="dist-emoji">{{ d.emoji }}</span>
+            <span class="dist-name">{{ d.name }}</span>
+            <div class="dist-bar-wrap">
+              <div class="dist-bar" [style.width]="d.pct + '%'"></div>
+            </div>
+            <span class="dist-count">{{ d.count }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Recap CTA -->
+  <div class="recap-cta mc-card animate-fadeInUp delay-4">
+    <div class="cta-left">
+      <span class="cta-icon">🌟</span>
+      <div>
+        <strong>Your {{ currentYear }} Recap is ready</strong>
+        <p>Best months, personality type, streaks and more.</p>
+      </div>
+    </div>
+    <a routerLink="/stats/recap" class="btn btn-primary">View Recap →</a>
+  </div>
+</div>

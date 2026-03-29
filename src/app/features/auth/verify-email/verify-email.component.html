@@ -1,0 +1,38 @@
+<div class="auth-simple">
+  <div class="auth-card">
+    <div class="auth-card-icon">📧</div>
+    <h2>Verify your email</h2>
+    <p>Copy the token from the email we sent you and paste it below.</p>
+
+    @if (verified()) {
+      <div class="success-msg">
+        <span>✓</span> Email verified successfully!<br/>
+        <a routerLink="/auth/login">Sign in now →</a>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-control" type="email" formControlName="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Verification Token</label>
+          <input class="form-control token-input" type="text" formControlName="code"
+            placeholder="Paste your verification token from email"
+            autocomplete="off" />
+        </div>
+        @if (apiError()) {
+          <div class="api-error">{{ apiError() }}</div>
+        }
+        <button type="submit" class="btn btn-primary btn-full" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner spinner-sm"></span>
+          } @else {
+            Verify Email
+          }
+        </button>
+      </form>
+    }
+    <p class="back-link"><a routerLink="/auth/login">← Back to login</a></p>
+  </div>
+</div>

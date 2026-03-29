@@ -1,0 +1,102 @@
+<div class="log-mood-page">
+  <div class="page-top animate-fadeInUp">
+    <h1>Log Your Mood</h1>
+    <p class="page-sub">Take a moment to check in with yourself. How are you feeling right now?</p>
+    <span class="today-chip">{{ today | date:'EEEE, MMMM d' }}</span>
+  </div>
+
+  <div class="log-layout animate-fadeInUp delay-1">
+
+    <!-- Step 1: Pick Emoji -->
+    <div class="log-step mc-card">
+      <div class="step-badge">Step 1</div>
+      <h3>Choose an emoji that matches your mood</h3>
+      <p class="step-hint">Pick the one that feels most true right now.</p>
+
+      @if (loading()) {
+        <div class="emoji-grid-lg">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="skeleton emoji-skeleton"></div>
+          }
+        </div>
+      } @else {
+        <div class="emoji-grid-lg">
+          @for (e of emojis(); track e.emojiId) {
+            <div class="emoji-tile"
+              [class.selected]="form.get('emojiId')?.value === e.emojiId"
+              (click)="selectEmoji(e)">
+              <div class="tile-emoji">{{ e.symbol }}</div>
+              <div class="tile-name">{{ e.description }}</div>
+              <div class="tile-score">
+                @for (d of scores; track d) {
+                  <span class="score-dot" [class.on]="d <= e.moodScore"></span>
+                }
+              </div>
+              @if (form.get('emojiId')?.value === e.emojiId) {
+                <div class="tile-check">✓</div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (selectedEmoji()) {
+        <div class="selected-preview">
+          <span class="preview-emoji">{{ selectedEmoji()!.symbol }}</span>
+          <div class="preview-info">
+            <strong>{{ selectedEmoji()!.description }}</strong>
+            <span>Mood score: {{ selectedEmoji()!.moodScore }}/5</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Step 2: Write note -->
+    <div class="log-step mc-card" [class.step-disabled]="!selectedEmoji()">
+      <div class="step-badge" [class.badge-active]="selectedEmoji()">Step 2</div>
+      <h3>Write a note</h3>
+      <p class="step-hint">What's on your mind? A few words are enough.</p>
+
+      <form [formGroup]="form">
+        <textarea class="form-control journal-area"
+          [class.is-invalid]="form.get('entryText')?.invalid && form.get('entryText')?.touched"
+          formControlName="entryText"
+          placeholder="Today I'm feeling this way because…"
+          rows="5" maxlength="255"
+          [attr.disabled]="!selectedEmoji() ? true : null">
+        </textarea>
+        <div class="char-row">
+          @if (form.get('entryText')?.invalid && form.get('entryText')?.touched) {
+            <span class="form-error">Please add a short note.</span>
+          } @else {
+            <span></span>
+          }
+          <span class="char-count">{{ form.get('entryText')?.value?.length || 0 }} / 255</span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-row">
+      @if (selectedEmoji()) {
+        <div class="submit-preview">
+          <span class="submit-emoji">{{ selectedEmoji()!.symbol }}</span>
+          <span class="submit-text">
+            Logging <strong>{{ selectedEmoji()!.description }}</strong> for <strong>today</strong>
+          </span>
+        </div>
+      }
+      <button class="btn btn-primary btn-lg" (click)="onSubmit()" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner spinner-sm"></span>
+          Saving…
+        } @else {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Save Mood Entry
+        }
+      </button>
+    </div>
+  </div>
+</div>

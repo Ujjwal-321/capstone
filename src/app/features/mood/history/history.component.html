@@ -1,0 +1,110 @@
+<div class="history-page">
+  <div class="page-top animate-fadeInUp">
+    <h1>Mood History</h1>
+    <p class="page-sub">Browse, search, and reflect on your emotional journey.</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar mc-card animate-fadeInUp delay-1" [formGroup]="filterForm">
+    <div class="filter-group">
+      <label class="form-label">From</label>
+      <input type="date" class="form-control filter-input" formControlName="startDate" />
+    </div>
+    <div class="filter-group">
+      <label class="form-label">To</label>
+      <input type="date" class="form-control filter-input" formControlName="endDate" />
+    </div>
+    <div class="filter-group">
+      <label class="form-label">Mood</label>
+      <select class="form-control filter-input" formControlName="emojiId">
+        <option value="">All moods</option>
+        @for (e of emojis(); track e.emojiId) {
+          <option [value]="e.emojiId">{{ e.symbol }} {{ e.description }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-group flex-1">
+      <label class="form-label">Search</label>
+      <input type="text" class="form-control filter-input" formControlName="keyword" placeholder="Search notes…" />
+    </div>
+    <div class="filter-actions">
+      <button class="btn btn-primary" (click)="applyFilters()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Search
+      </button>
+      <button class="btn btn-ghost" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Results Header -->
+  @if (!loading()) {
+    <div class="results-header animate-fadeInUp delay-2">
+      <span class="results-count">{{ totalElements() }} entries found</span>
+      @if (totalPages() > 1) {
+        <span class="results-pages">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+      }
+    </div>
+  }
+
+  <!-- Loading Skeletons -->
+  @if (loading()) {
+    <div class="entry-list">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="entry-card-skeleton mc-card">
+          <div class="skeleton sk-emoji-sm"></div>
+          <div class="sk-body">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-text"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Entry Cards -->
+    <div class="entry-list animate-fadeInUp delay-3">
+      @for (e of entries(); track e.entryId) {
+        <div class="entry-card mc-card">
+          <div class="entry-emoji">{{ e.emojiSymbol }}</div>
+          <div class="entry-body">
+            <div class="entry-top">
+              <div class="entry-mood-info">
+                <span class="entry-mood-name">{{ e.emojiDescription }}</span>
+                <div class="entry-score-dots">
+                  @for (d of scores; track d) {
+                    <span class="edot" [class.on]="d <= e.moodScore"></span>
+                  }
+                </div>
+              </div>
+              <div class="entry-date-block">
+                <span class="entry-date">{{ e.entryDate | date:'MMMM d, y' }}</span>
+                <span class="entry-time">{{ e.createdAt | date:'h:mm a' }}</span>
+              </div>
+            </div>
+            <p class="entry-text">{{ e.entryText }}</p>
+          </div>
+        </div>
+      }
+
+      @empty {
+        <div class="empty-state">
+          <span class="empty-icon">🔍</span>
+          <h3>No entries found</h3>
+          <p>Try adjusting your filters or <a routerLink="/mood/log" class="text-gold">log a new mood</a>.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button class="page-btn" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">‹ Prev</button>
+        @for (p of pageNumbers(); track p) {
+          <button class="page-btn" [class.active]="p === currentPage()" (click)="goToPage(p)">{{ p + 1 }}</button>
+        }
+        <button class="page-btn" [disabled]="currentPage() === totalPages() - 1" (click)="goToPage(currentPage() + 1)">Next ›</button>
+      </div>
+    }
+  }
+</div>
