@@ -87,6 +87,7 @@ export interface MoodEntryResponse {
   emojiDescription: string;
   moodScore: number;
   entryText: string;
+  insightText?: string;
   entryDate: string;
   createdAt: string;
 }

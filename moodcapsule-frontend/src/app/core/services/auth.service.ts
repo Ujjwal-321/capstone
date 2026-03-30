@@ -6,7 +6,7 @@ import {
   AuthResponse, LoginRequest, RegisterRequest,
   RefreshTokenRequest, VerifyEmailRequest,
   ForgotPasswordRequest, ResetPasswordRequest,
-  ApiResponse, UserProfileResponse
+  ApiResponse
 } from '../models';
 
 export const API_BASE = 'http://localhost:8080/api';
@@ -18,20 +18,18 @@ export class AuthService {
   private readonly USER_KEY    = 'mc_user';
 
   private _user = signal<AuthResponse | null>(this.loadUser());
-  readonly user   = this._user.asReadonly();
+  readonly user = this._user.asReadonly();
   readonly isAuth = computed(() => !!this._user());
   readonly isAdmin = computed(() => this._user()?.role === 'ADMIN');
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  // ─── Register ──────────────────────────────────────────────
   register(payload: RegisterRequest) {
     return this.http.post<ApiResponse<AuthResponse>>(
       `${API_BASE}/auth/register`, payload
     );
   }
 
-  // ─── Login ─────────────────────────────────────────────────
   login(payload: LoginRequest) {
     return this.http.post<ApiResponse<AuthResponse>>(
       `${API_BASE}/auth/login`, payload
@@ -40,7 +38,6 @@ export class AuthService {
     );
   }
 
-  // ─── Refresh Token ─────────────────────────────────────────
   refresh() {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) return throwError(() => new Error('No refresh token'));
@@ -57,7 +54,6 @@ export class AuthService {
     );
   }
 
-  // ─── Logout ────────────────────────────────────────────────
   logout() {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
@@ -65,18 +61,17 @@ export class AuthService {
         `${API_BASE}/auth/logout`, { refreshToken }
       ).subscribe({ error: () => {} });
     }
+
     this.clearSession();
     this.router.navigate(['/auth/login']);
   }
 
-  // ─── Email Verification ────────────────────────────────────
   verifyEmail(payload: VerifyEmailRequest) {
     return this.http.post<ApiResponse<null>>(
       `${API_BASE}/auth/verify-email`, payload
     );
   }
 
-  // ─── Password Reset ─────────────────────────────────────────
   forgotPassword(payload: ForgotPasswordRequest) {
     return this.http.post<ApiResponse<null>>(
       `${API_BASE}/auth/forgot-password`, payload
@@ -89,7 +84,6 @@ export class AuthService {
     );
   }
 
-  // ─── Token Helpers ──────────────────────────────────────────
   getAccessToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
@@ -98,10 +92,25 @@ export class AuthService {
     return localStorage.getItem(this.REFRESH_KEY);
   }
 
+  getCurrentUser(): AuthResponse | null {
+    return this._user();
+  }
+
+  getUserName(): string {
+    const user = this._user();
+
+    return (
+      (user as any)?.fullName ||
+      (user as any)?.name ||
+      (user as any)?.email ||
+      'there'
+    );
+  }
+
   private persistSession(auth: AuthResponse) {
-    localStorage.setItem(this.TOKEN_KEY,   auth.accessToken);
+    localStorage.setItem(this.TOKEN_KEY, auth.accessToken);
     localStorage.setItem(this.REFRESH_KEY, auth.refreshToken);
-    localStorage.setItem(this.USER_KEY,    JSON.stringify(auth));
+    localStorage.setItem(this.USER_KEY, JSON.stringify(auth));
     this._user.set(auth);
   }
 
