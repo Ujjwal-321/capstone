@@ -25,7 +25,19 @@ import { UserProfileResponse } from '../../core/models';
         <!-- Left: Avatar & Info -->
         <div class="profile-sidebar">
           <div class="avatar-card mc-card">
-            <div class="big-avatar">{{ initials() }}</div>
+          <div class="big-avatar-wrapper">
+  <img
+    *ngIf="profile()?.avatarUrl; else initialsAvatar"
+    [src]="profile()?.avatarUrl"
+    alt="Profile Avatar"
+    class="big-avatar-image"
+    (error)="onAvatarError($event)"
+  />
+
+  <ng-template #initialsAvatar>
+    <div class="big-avatar">{{ initials() }}</div>
+  </ng-template>
+</div>
             <div class="profile-name">{{ profile()!.fullName }}</div>
             <div class="profile-email">{{ profile()!.email }}</div>
             <div class="profile-badges">
@@ -148,6 +160,11 @@ import { UserProfileResponse } from '../../core/models';
 
     select.form-control option { background: var(--bg-elevated); }
 
+    /*Avatar Image*/
+    .big-avatar-wrapper { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; }
+    .big-avatar-image { width: 100%; height: 100%; object-fit: cover;
+    border: 3px solid rgba(201,169,110,0.3);
+  box-shadow: 0 0 24px rgba(201,169,110,0.2); }
     /* Toggle */
     .reminder-toggle { margin-top: 8px; }
     .toggle-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
@@ -238,6 +255,11 @@ export class ProfileComponent implements OnInit {
       themePreference: p.themePreference, reminderAllowed: p.reminderAllowed, reminderTime: p.reminderTime ?? ''
     });
   }
+
+  onAvatarError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.style.display = 'none';
+}
 
   onSave() {
     if (this.saving()) return;
