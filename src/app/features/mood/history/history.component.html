@@ -83,6 +83,12 @@
               </div>
             </div>
             <p class="entry-text">{{ e.entryText }}</p>
+            @if (e.insightText) {
+              <div class="entry-insight">
+                <span class="insight-icon">✨</span>
+                <span class="insight-text">{{ e.insightText }}</span>
+              </div>
+            }
           </div>
         </div>
       }

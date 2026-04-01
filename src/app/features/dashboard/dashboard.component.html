@@ -96,6 +96,12 @@
               <span class="score-num">{{ todayEntry()!.moodScore }}/5</span>
             </div>
             <p class="logged-text">"{{ todayEntry()!.entryText }}"</p>
+              @if (todayEntry()!.insightText) {
+                <div class="entry-insight">
+                  <span class="insight-icon">✨</span>
+                  <span class="insight-text">{{ todayEntry()!.insightText }}</span>
+                </div>
+              }
           </div>
           <div class="locked-badge">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

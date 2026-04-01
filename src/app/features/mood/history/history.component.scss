@@ -37,6 +37,20 @@ select.form-control option { background: var(--bg-elevated); }
 
 .empty-state { text-align: center; padding: 60px 20px; }
 
+.entry-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(var(--color-gold-rgb, 212, 175, 55), 0.08);
+  border-left: 3px solid var(--color-gold, #d4af37);
+  border-radius: 0 6px 6px 0;
+
+  .insight-icon { font-size: 0.85rem; }
+  .insight-text { font-size: 0.8rem; color: var(--color-text-secondary); font-style: italic; line-height: 1.4; }
+}
+
 @media (max-width: 600px) {
   .filters-bar  { flex-direction: column; }
   .filter-input { min-width: unset; width: 100%; }
