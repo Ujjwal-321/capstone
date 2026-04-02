@@ -14,7 +14,11 @@
       <!-- Sidebar -->
       <div class="profile-sidebar">
         <div class="avatar-card mc-card">
-          <div class="big-avatar">{{ initials() }}</div>
+          <div class="big-avatar" [style]="avatarStyle()">
+            @if (!profile()?.avatarUrl) {
+              {{ initials() }}
+            }
+          </div>
           <div class="profile-name">{{ profile()!.fullName }}</div>
           <div class="profile-email">{{ profile()!.email }}</div>
           <div class="profile-badges">

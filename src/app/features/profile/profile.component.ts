@@ -26,6 +26,11 @@ export class ProfileComponent implements OnInit {
     return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   });
 
+  avatarStyle = computed(() => {
+    const url = this.profile()?.avatarUrl;
+    return url ? { 'background-image': `url(${url})`, 'background-size': 'cover', 'background-position': 'center' } : {};
+  });
+
   form = this.fb.group({
     fullName:        [''],
     avatarUrl:       [''],
