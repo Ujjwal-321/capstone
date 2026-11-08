@@ -4,7 +4,7 @@ import {
   ApiResponse, EmojiResponse, MoodEntryCreateRequest, MoodEntryResponse,
   MoodHistoryResponse, MoodSummaryResponse, MoodTrendPointResponse,
   StreakResponse, YearlyRecapResponse, UserProfileResponse,
-  UpdateProfileRequest, PageResponse
+  UpdateProfileRequest, PageResponse, DeleteAccountRequest
 } from '../models';
 import { API_BASE } from './auth.service';
 
@@ -96,6 +96,13 @@ export class UserService {
     return this.http.put<ApiResponse<UserProfileResponse>>(
       `${API_BASE}/users/me`, payload
     );
+  }
+
+  // ─── Method for MC-49 account deletion overrides ────────────
+  deleteAccount(payload: DeleteAccountRequest) {
+    return this.http.delete<ApiResponse<null>>(`${API_BASE}/users/me`, {
+      body: payload
+    });
   }
 }
 
