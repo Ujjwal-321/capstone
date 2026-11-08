@@ -6,7 +6,7 @@ import {
   AuthResponse, LoginRequest, RegisterRequest,
   RefreshTokenRequest, VerifyEmailRequest,
   ForgotPasswordRequest, ResetPasswordRequest,
-  ApiResponse, UserProfileResponse
+  ApiResponse, UserProfileResponse, GoogleAuthRequest
 } from '../models';
 
 export const API_BASE = 'http://localhost:8080/api';
@@ -35,6 +35,15 @@ export class AuthService {
   login(payload: LoginRequest) {
     return this.http.post<ApiResponse<AuthResponse>>(
       `${API_BASE}/auth/login`, payload
+    ).pipe(
+      tap(res => this.persistSession(res.data))
+    );
+  }
+
+  // ─── Google Login ──────────────────────────────────────────
+  googleLogin(payload: GoogleAuthRequest) {
+    return this.http.post<ApiResponse<AuthResponse>>(
+      `${API_BASE}/auth/google`, payload
     ).pipe(
       tap(res => this.persistSession(res.data))
     );
