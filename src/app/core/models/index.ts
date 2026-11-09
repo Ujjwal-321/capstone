@@ -1,3 +1,13 @@
+// ─── Google OAuth & System Overrides ──────────────────────
+export interface GoogleAuthRequest {
+  idToken: string;
+}
+
+export interface DeleteAccountRequest {
+  password?: string;
+  confirmationText?: string;
+}
+
 // ─── Auth Models ───────────────────────────────────────────
 export interface RegisterRequest {
   fullName: string;
@@ -39,6 +49,7 @@ export interface AuthResponse {
   email: string;
   role: 'USER' | 'ADMIN';
   emailVerified: boolean;
+  authProvider: string;
 }
 
 // ─── User Models ────────────────────────────────────────────

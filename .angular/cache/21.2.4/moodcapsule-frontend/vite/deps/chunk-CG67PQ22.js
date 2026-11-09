@@ -1,7 +1,4 @@
 import {
-  withHttpTransferCache
-} from "./chunk-FFNLNYVZ.js";
-import {
   DomEventsPlugin,
   DomRendererFactory2,
   EVENT_MANAGER_PLUGINS,
@@ -9,6 +6,9 @@ import {
   EventManagerPlugin,
   SharedStylesHost
 } from "./chunk-HYFDEVDV.js";
+import {
+  withHttpTransferCache
+} from "./chunk-FFNLNYVZ.js";
 import {
   CommonModule,
   PLATFORM_BROWSER_ID
@@ -1060,4 +1060,4 @@ export {
   provideClientHydration,
   VERSION
 };
-//# sourceMappingURL=chunk-RRCMXMKB.js.map
+//# sourceMappingURL=chunk-CG67PQ22.js.map

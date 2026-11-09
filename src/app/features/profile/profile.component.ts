@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
 import { UserService, ToastService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfileResponse } from '../../core/models';
@@ -7,7 +7,7 @@ import { UserProfileResponse } from '../../core/models';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -20,6 +20,12 @@ export class ProfileComponent implements OnInit {
   loading  = signal(true);
   saving   = signal(false);
   profile  = signal<UserProfileResponse | null>(null);
+
+  // ─── MC-69 Account Deletion State Controls ───────────────────
+  isGoogleUser      = signal(false);
+  deleteConfirmText = signal('');
+  deletePassword    = signal('');
+  isDeleteLoading   = signal(false);
 
   initials = computed(() => {
     const name = this.profile()?.fullName ?? 'U';
@@ -41,6 +47,11 @@ export class ProfileComponent implements OnInit {
   });
 
   ngOnInit() {
+    const currentSession = this.auth.user();
+    if (currentSession) {
+      this.isGoogleUser.set(currentSession.authProvider === 'google');
+    }
+
     this.userSvc.getProfile().subscribe({
       next: r => {
         this.profile.set(r.data);
@@ -56,6 +67,45 @@ export class ProfileComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
+    });
+  }
+
+  // ─── MC-69 Multi-Mode Deletion Flow Action ──────────────────
+  onDeleteAccount() {
+    if (this.isDeleteLoading()) return;
+
+    const payload: any = {};
+
+    if (this.isGoogleUser()) {
+      if (this.deleteConfirmText().trim() !== 'DELETE') {
+        this.toast.error("Please type 'DELETE' exactly to confirm deletion.");
+        return;
+      }
+      payload.confirmationText = this.deleteConfirmText().trim();
+    } else {
+      if (!this.deletePassword().trim()) {
+        this.toast.error("Please enter your account password.");
+        return;
+      }
+      payload.password = this.deletePassword().trim();
+    }
+
+    if (!confirm("Are you absolutely sure you want to permanently delete your account? This action cannot be undone.")) {
+      return;
+    }
+
+    this.isDeleteLoading.set(true);
+
+    this.userSvc.deleteAccount(payload).subscribe({
+      next: () => {
+        this.isDeleteLoading.set(false);
+        this.toast.success('Your profile and all your emotional metrics have been deleted. Goodbye! 👋');
+        this.logout();
+      },
+      error: err => {
+        this.toast.error(err?.error?.message || 'Failed to complete profile deletion.');
+        this.isDeleteLoading.set(false);
+      }
     });
   }
 

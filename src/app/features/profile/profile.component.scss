@@ -62,3 +62,32 @@ input[type="time"].form-control {
   .profile-layout { grid-template-columns: 1fr; }
   .form-grid      { grid-template-columns: 1fr; }
 }
+
+.deletion-zone {
+  .label-alert {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    
+    .badge-delete-text {
+      color: #e05c5c;
+      font-weight: 700;
+      background: rgba(224, 92, 92, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono, monospace);
+    }
+  }
+
+  .form-control.control-alert {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    max-width: 100%;
+    margin-top: 6px;
+
+    &:focus {
+      border-color: #e05c5c;
+      box-shadow: 0 0 8px rgba(224, 92, 92, 0.15);
+    }
+  }
+}

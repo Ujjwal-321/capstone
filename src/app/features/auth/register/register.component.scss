@@ -190,6 +190,40 @@
   }
 }
 
+.google-btn-container {
+  width: 100%;
+  max-width: 360px;
+  margin: 1.5rem auto 1rem auto;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-google-custom {
+  width: 100%;
+  max-width: 360px;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #111420;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  color: #ffffff !important;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  border-radius: var(--radius-full, 24px);
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: #171c2c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(201, 169, 110, 0.18);
+  }
+}
+
 @media (max-width: 900px) {
   .auth-left  { display: none; }
   .auth-right { width: 100%; border-left: none; }

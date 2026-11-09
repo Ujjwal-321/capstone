@@ -1,8 +1,9 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit, NgZone } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/api.services';
+import { GoogleAuthRequest } from '../../../core/models';
 
 @Component({
   selector: 'app-register',
@@ -11,10 +12,12 @@ import { ToastService } from '../../../core/services/api.services';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent {
-  private fb    = inject(FormBuilder);
-  private auth  = inject(AuthService);
-  private toast = inject(ToastService);
+export class RegisterComponent implements OnInit {
+  private fb     = inject(FormBuilder);
+  private auth   = inject(AuthService);
+  private router = inject(Router);
+  private toast  = inject(ToastService);
+  private ngZone = inject(NgZone);
 
   loading    = signal(false);
   showPass   = signal(false);
@@ -32,6 +35,30 @@ export class RegisterComponent {
     email:    ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
+
+  ngOnInit(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+      window.history.replaceState(null, '', window.location.pathname);
+      this.loading.set(true);
+      this.apiError.set('');
+      
+      this.ngZone.run(() => {
+        this.auth.googleLogin({ idToken: code }).subscribe({
+          next: () => {
+            this.toast.success('Account created and logged in with Google! 🚀');
+            this.router.navigate(['/dashboard']);
+          },
+          error: err => {
+            this.apiError.set(err?.error?.message || 'Google Registration Verification failed.');
+            this.loading.set(false);
+          }
+        });
+      });
+    }
+  }
 
   isInvalid(f: string) {
     const c = this.form.get(f);
