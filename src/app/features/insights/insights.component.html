@@ -1,0 +1,125 @@
+<div class="page">
+  <section class="hero">
+    <div class="head">
+      <div>
+        <h1>Insights</h1>
+        <p class="sub">Patterns from your moments. Averages are per day, so busy days don't count twice.</p>
+      </div>
+      <div class="ranges" role="tablist" aria-label="Time range">
+        @for (r of ranges; track r.days) {
+          <button type="button" role="tab" [class.on]="r.days === range()" [attr.aria-selected]="r.days === range()" (click)="setRange(r.days)">{{ r.label }}</button>
+        }
+      </div>
+    </div>
+    <div class="glance">
+      <div class="glass"><b><span class="emoji">{{ face(rangeAvg()) }}</span> {{ score1(rangeAvg()) }}</b><span>average day in this range</span></div>
+      <div class="glass"><b><span class="emoji">🔥</span> {{ streak()?.currentStreak ?? '–' }}</b><span>day streak · best {{ streak()?.longestStreak ?? '–' }}</span></div>
+      <div class="glass"><b>{{ summary()?.totalEntries ?? '–' }}</b><span>moments · {{ summary()?.daysLogged ?? '–' }} days logged</span></div>
+    </div>
+  </section>
+
+  @if (failed()) {
+    <div class="form-error" style="margin-top: 16px">Some insights couldn't load. Refresh the page to try again.</div>
+  }
+
+  <section class="card trend">
+    <div class="card-head">
+      <h3>Mood over time</h3>
+      <span class="meta">{{ range() > 90 ? 'weekly averages' : 'daily averages' }}</span>
+    </div>
+    @if (trend() === null) {
+      <div class="skeleton" style="height: 230px"></div>
+    } @else if (line().length) {
+      <mc-mood-line [points]="line()" />
+    } @else {
+      <div class="empty"><span class="big">📈</span><h3>No moments in this range</h3><p>Pick a longer range or log a few moments.</p></div>
+    }
+  </section>
+
+  <div class="grid-2 cols">
+    <section class="card">
+      <div class="card-head"><h3>Mood by place</h3><span class="meta">best first</span></div>
+      @if (places() === null) {
+        <div class="skeleton" style="height: 160px"></div>
+      } @else {
+        @for (p of placeRows(); track p.placeId) {
+          <div class="hbar" [title]="p.count + ' moments'">
+            <span><span class="emoji">{{ p.placeIcon }}</span> {{ p.placeName }}</span>
+            <div class="track"><div class="fill" [style.width.%]="bar(p.averageScore)"></div></div>
+            <b>{{ score1(p.averageScore) }}</b>
+          </div>
+        } @empty {
+          <p class="muted">No tagged places in this range yet.</p>
+        }
+        @if (placeInsight()) { <p class="insight">✦ {{ placeInsight() }}</p> }
+      }
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h3>Mood by time of day</h3><span class="meta">when you log</span></div>
+      @if (times() === null) {
+        <div class="skeleton" style="height: 160px"></div>
+      } @else {
+        <div class="times">
+          @for (t of times(); track t.period) {
+            <div class="time" [class.none]="!t.count">
+              <span class="emoji ico">{{ t.icon }}</span>
+              <b>{{ t.label }}</b>
+              <span class="score"><span class="emoji">{{ face(t.averageScore) }}</span> {{ score1(t.averageScore) }}</span>
+              <span class="hint">{{ t.count }} moment{{ t.count === 1 ? '' : 's' }} · {{ hour(t.startHour) }}–{{ hour(t.endHour) }}</span>
+            </div>
+          }
+        </div>
+        @if (timeInsight()) { <p class="insight">✦ {{ timeInsight() }}</p> }
+      }
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h3>Your week, day by day</h3><span class="meta">average per weekday</span></div>
+      @if (trend() === null) {
+        <div class="skeleton" style="height: 160px"></div>
+      } @else {
+        <div class="weekdays">
+          @for (d of weekdays(); track d.name) {
+            <div class="wd" [title]="d.name + ': ' + score1(d.avg) + ' (' + d.n + ' days)'">
+              <span class="val">{{ score1(d.avg) }}</span>
+              <div class="col"><div class="colfill" [style.height.%]="d.height" [style.background]="d.color"></div></div>
+              <span class="lab">{{ d.short }}</span>
+            </div>
+          }
+        </div>
+        @if (weekdayInsight()) { <p class="insight">✦ {{ weekdayInsight() }}</p> }
+      }
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h3>Mood mix</h3><span class="meta">days by how they felt</span></div>
+      @if (trend() === null) {
+        <div class="skeleton" style="height: 160px"></div>
+      } @else {
+        <div class="mixbar" role="img" aria-label="Share of days at each mood level">
+          @for (m of mix(); track m.level) {
+            @if (m.n) { <div [style.width.%]="m.pct" [style.background]="'var(--mood-' + m.level + ')'" [title]="m.label + ': ' + m.n + ' days'"></div> }
+          }
+        </div>
+        <ul class="mixlist">
+          @for (m of mix(); track m.level) {
+            <li><i [style.background]="'var(--mood-' + m.level + ')'"></i><span class="emoji">{{ m.face }}</span> {{ m.label }} <b>{{ m.n }}</b> <span class="hint">days</span></li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+
+  @if (recap(); as r) {
+    <section class="card recap">
+      <div class="card-head"><h3>{{ r.year }} so far</h3><a class="link" routerLink="/wrapped">Open Capsule Wrapped 🎁 →</a></div>
+      <div class="grid-4">
+        <div class="tile"><b>{{ r.moodPersonality || '–' }}</b><span>your mood personality</span></div>
+        <div class="tile"><b><span class="emoji">{{ r.mostUsedEmojiSymbol || '·' }}</span> {{ r.mostUsedEmojiDescription || '–' }}</b><span>most logged mood</span></div>
+        <div class="tile"><b>{{ recapMonth()?.best }}</b><span>best month</span></div>
+        <div class="tile"><b>{{ r.longestStreak }} days</b><span>longest streak</span></div>
+      </div>
+    </section>
+  }
+</div>

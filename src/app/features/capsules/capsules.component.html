@@ -1,0 +1,103 @@
+<div class="page">
+  <section class="hero">
+    <div class="head">
+      <div>
+        <h1>Time Capsules</h1>
+        <p class="sub">Letters to your future self. Sealed until the day you choose.</p>
+      </div>
+      <button type="button" class="btn white" (click)="sealing.set(true)">💌 Seal a new capsule</button>
+    </div>
+    <div class="glance">
+      <div class="glass"><b>{{ sealed().length }}</b><span>sealed</span></div>
+      <div class="glass"><b>{{ ready().length }}</b><span>ready to open</span></div>
+      <div class="glass"><b>{{ opened().length }}</b><span>opened</span></div>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="form-error" style="margin-top: 16px">{{ error() }} <button type="button" class="link-btn" (click)="load()">Try again</button></div>
+  }
+
+  @if (capsules() === null && !error()) {
+    <div class="grid-3 list"><div class="skeleton" style="height: 170px"></div><div class="skeleton" style="height: 170px"></div><div class="skeleton" style="height: 170px"></div></div>
+  } @else {
+    @if (ready().length) {
+      <h2 class="section">🎁 Ready to open</h2>
+      <div class="grid-3 list">
+        @for (c of ready(); track c.capsuleId) {
+          <article class="cap ready-card">
+            <div class="pill-mini" aria-hidden="true"><span class="emoji">{{ c.emojiSymbol || '💊' }}</span></div>
+            <h3>A note from {{ writtenOn(c) }}</h3>
+            <p class="muted">Sealed {{ c.emojiSymbol ? 'feeling ' + (c.emojiDescription || '').toLowerCase() : '' }} · unlocked {{ date(c.unlockDate) }}</p>
+            <button type="button" class="btn" (click)="open(c)">Open it ✨</button>
+          </article>
+        }
+      </div>
+    }
+
+    <h2 class="section">🔒 Sealed</h2>
+    <div class="grid-3 list">
+      @for (c of sealed(); track c.capsuleId) {
+        <article class="cap">
+          <div class="cap-top">
+            <span class="lock">🔒</span>
+            <span class="days"><b>{{ countdown(c.daysLeft) }}</b> to go</span>
+          </div>
+          <div class="progress" [attr.aria-label]="'Waited ' + progress(c).toFixed(0) + '%'"><div [style.width.%]="progress(c)"></div></div>
+          <p class="opens">Opens on <b>{{ date(c.unlockDate) }}</b></p>
+          <p class="hint">Sealed {{ writtenOn(c) }}{{ c.emojiSymbol ? ' · feeling ' + c.emojiSymbol : '' }}</p>
+          <p class="blur" aria-hidden="true">This message stays hidden until its day arrives.</p>
+        </article>
+      } @empty {
+        <button type="button" class="cap empty-cap" (click)="sealing.set(true)">
+          <span class="emoji big">💌</span>
+          <b>No sealed capsules</b>
+          <span class="muted">Write a line for future you: "Did you finish that project?"</span>
+        </button>
+      }
+    </div>
+
+    @if (opened().length) {
+      <h2 class="section">📬 Opened</h2>
+      <div class="grid-3 list">
+        @for (c of opened(); track c.capsuleId) {
+          <article class="cap opened-card" (click)="reread(c)" tabindex="0" (keydown.enter)="reread(c)">
+            <div class="cap-top">
+              <span class="emoji face">{{ c.emojiSymbol || '💌' }}</span>
+              <span class="hint">written {{ writtenOn(c) }}</span>
+            </div>
+            <p class="msg">"{{ c.message }}"</p>
+            <p class="hint">Opened {{ c.openedAt ? date(c.openedAt.slice(0, 10)) : date(c.unlockDate) }}</p>
+          </article>
+        }
+      </div>
+    }
+  }
+</div>
+
+@if (sealing()) {
+  <mc-seal-dialog [today]="today()" (closed)="sealing.set(false)" (sealed)="onSealed($event)" />
+}
+
+@if (opening(); as c) {
+  <div class="overlay" [class.shake]="stage() === 'shake'" [class.crack]="stage() === 'crack'" [class.open]="stage() === 'open'" (click)="closeOverlay()" role="dialog" aria-modal="true" aria-label="Opening your time capsule">
+    <div class="stars" aria-hidden="true">
+      @for (s of [1, 2, 3, 4, 5, 6, 7, 8]; track s) { <i [style.--i]="s">✦</i> }
+    </div>
+    <div class="capsule" aria-hidden="true">
+      <div class="half top"></div>
+      <div class="half bottom"></div>
+      <div class="glow"></div>
+    </div>
+    @if (stage() === 'open') {
+      <div class="reveal" (click)="$event.stopPropagation()">
+        <span class="emoji pop">{{ c.emojiSymbol || '💌' }}</span>
+        <p class="from">From you, on {{ writtenOn(c) }}{{ c.emojiDescription ? ', feeling ' + c.emojiDescription.toLowerCase() : '' }}</p>
+        <blockquote>{{ c.message }}</blockquote>
+        <button type="button" class="btn white" (click)="opening.set(null)">Close</button>
+      </div>
+    } @else {
+      <p class="opening-text">Opening your capsule…</p>
+    }
+  </div>
+}

@@ -1,0 +1,157 @@
+<div class="page">
+  <section class="hero">
+    <p class="eyebrow">{{ dateLine() }}</p>
+    <h1>{{ hello() }} ✨</h1>
+    <p class="sub">Here's how your week has felt.</p>
+
+    <div class="glance">
+      @if (week(); as w) {
+        <div class="glass"><b>{{ w.moments }}</b><span>moments this week</span></div>
+        <div class="glass"><b>{{ w.days }} / 7</b><span>days logged</span></div>
+        <div class="glass"><b><span class="emoji">{{ w.face }}</span> {{ w.avg }}</b><span>week's average</span></div>
+      } @else {
+        @for (i of [1, 2, 3]; track i) { <div class="glass skel"></div> }
+      }
+      <div class="glass"><b><span class="emoji">🔥</span> {{ streak()?.currentStreak ?? '–' }}</b><span>day streak · best {{ streak()?.longestStreak ?? '–' }}</span></div>
+    </div>
+  </section>
+
+  @if (failed()) {
+    <div class="form-error" style="margin-top: 16px">
+      Some cards couldn't load. <button type="button" class="link-btn" (click)="load()">Try again</button>
+    </div>
+  }
+
+  <div class="grid-2 cols">
+    <div class="stack">
+      <!-- Today -->
+      <section class="card">
+        <div class="card-head">
+          <h3>Today</h3>
+          <span class="meta">{{ todayMoments()?.length ?? 0 }} of 5 moments</span>
+        </div>
+        @if (todayMoments() === null) {
+          <div class="skeleton" style="height: 70px"></div>
+        } @else {
+          @for (m of todayMoments(); track m.entryId) {
+            <mc-moment-card [moment]="m" />
+          } @empty {
+            <div class="empty small">
+              <span class="big">🌱</span>
+              <h3>Nothing logged yet today</h3>
+              <p>How's your day going? Capture it in a few seconds on your phone.</p>
+            </div>
+          }
+          @if (todayReflection(); as r) {
+            <div class="tint refl"><b>🌙 TONIGHT'S REFLECTION · locked</b><p>{{ r.text }}</p></div>
+          }
+        }
+        <div class="app-nudge">
+          <span class="emoji">📱</span>
+          <span>Moments are logged in the MoodCapsule app, so they stay quick and in the moment.
+            <a [href]="playStoreUrl" target="_blank" rel="noopener">Get it on Google Play</a></span>
+        </div>
+      </section>
+
+      <!-- On this day -->
+      <section class="card">
+        <div class="card-head">
+          <h3>On this day</h3>
+          <a class="link" routerLink="/journal">Open journal →</a>
+        </div>
+        @if (memories() === null) {
+          <div class="skeleton" style="height: 60px"></div>
+        } @else {
+          @for (mem of memories(); track mem.date) {
+            <div class="memory">
+              <button type="button" class="mem-head" (click)="openDay.set(mem.date)">
+                <span>{{ mem.label }}</span><span class="meta">{{ mem.moments.length }} moment{{ mem.moments.length === 1 ? '' : 's' }} →</span>
+              </button>
+              <mc-moment-card [moment]="mem.moments[0]" [showDate]="true" />
+            </div>
+          } @empty {
+            <div class="empty small">
+              <span class="big">🕊️</span>
+              <h3>No memories yet</h3>
+              <p>A week from now, today's moments will show up here.</p>
+            </div>
+          }
+        }
+      </section>
+    </div>
+
+    <div class="stack">
+      <!-- Capsules -->
+      <a class="card capsule-card" routerLink="/capsules">
+        @if (capsuleInfo(); as c) {
+          @if (c.ready > 0) {
+            <span class="big emoji">🎁</span>
+            <div>
+              <h3>{{ c.ready }} capsule{{ c.ready === 1 ? ' is' : 's are' }} ready to open!</h3>
+              <p class="muted">A note from your past self is waiting.</p>
+            </div>
+          } @else if (c.next) {
+            <span class="big emoji">🕰️</span>
+            <div>
+              <h3>{{ c.sealed }} capsule{{ c.sealed === 1 ? '' : 's' }} sealed</h3>
+              <p class="muted">Next one opens in <b>{{ c.next.daysLeft }} day{{ c.next.daysLeft === 1 ? '' : 's' }}</b>.</p>
+            </div>
+          } @else {
+            <span class="big emoji">💌</span>
+            <div>
+              <h3>Write to your future self</h3>
+              <p class="muted">Seal a one-line capsule that opens months from now.</p>
+            </div>
+          }
+          <span class="go">→</span>
+        } @else {
+          <div class="skeleton" style="height: 52px; width: 100%"></div>
+        }
+      </a>
+
+      <!-- Mini pixels -->
+      <section class="card">
+        <div class="card-head">
+          <h3>Your last 15 weeks</h3>
+          <a class="link" routerLink="/pixels">Year in Pixels →</a>
+        </div>
+        @if (trend(); as t) {
+          <mc-mood-weeks [points]="t" [today]="today()" [weeks]="15" (pick)="openDay.set($event)" />
+          <div class="legend">
+            <span>Tough</span>
+            @for (l of [1, 2, 3, 4, 5]; track l) { <i [style.background]="'var(--mood-' + l + ')'"></i> }
+            <span>Great</span>
+          </div>
+        } @else {
+          <div class="skeleton" style="height: 130px"></div>
+        }
+      </section>
+
+      <!-- Places -->
+      <section class="card">
+        <div class="card-head">
+          <h3>Where you feel best</h3>
+          <span class="meta">30 days</span>
+        </div>
+        @if (places() === null) {
+          <div class="skeleton" style="height: 90px"></div>
+        } @else {
+          @for (p of topPlaces(); track p.placeId) {
+            <div class="hbar">
+              <span><span class="emoji">{{ p.placeIcon }}</span> {{ p.placeName }}</span>
+              <div class="track"><div class="fill" [style.width.%]="barWidth(p.averageScore)"></div></div>
+              <b>{{ score1(p.averageScore) }}</b>
+            </div>
+          } @empty {
+            <p class="muted">Tag a place when you log a moment and you'll see where you feel best.</p>
+          }
+          @if (topPlaces().length) { <a class="link small" routerLink="/insights">See all insights →</a> }
+        }
+      </section>
+    </div>
+  </div>
+</div>
+
+@if (openDay(); as d) {
+  <mc-day-panel [date]="d" (closed)="openDay.set(null)" />
+}

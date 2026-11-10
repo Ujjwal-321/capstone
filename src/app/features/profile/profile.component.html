@@ -1,115 +1,150 @@
-<div class="profile-page">
-  <div class="page-top animate-fadeInUp">
-    <h1>Profile & Settings</h1>
-    <p class="page-sub">Manage your account and preferences.</p>
-  </div>
-
-  @if (loading()) {
-    <div class="profile-loading">
-      <div class="spinner"></div>
+<div class="page">
+  <section class="hero me">
+    @if (avatarImage(); as img) {
+      <img class="ring" [src]="img" alt="" />
+    } @else {
+      <span class="ring emoji">{{ pickedAvatar() || avatar() }}</span>
+    }
+    <div>
+      <h1>{{ profile()?.fullName || 'Your profile' }}</h1>
+      <p class="sub">{{ profile()?.email }}</p>
+      @if (profile()?.bio) { <p class="bio">{{ profile()?.bio }}</p> }
     </div>
-  } @else if (profile()) {
-    <div class="profile-layout animate-fadeInUp delay-1">
+  </section>
 
-      <!-- Sidebar -->
-      <div class="profile-sidebar">
-        <div class="avatar-card mc-card">
-          <div class="big-avatar" [style]="avatarStyle()">
-            @if (!profile()?.avatarUrl) {
-              {{ initials() }}
+  <div class="grid-2 cols">
+    <div class="stack">
+      <!-- Edit profile -->
+      <section class="card">
+        <div class="card-head"><h3>Edit profile</h3></div>
+        <div class="field">
+          <label>Avatar</label>
+          <div class="avatars">
+            @for (a of avatars; track a) {
+              <button type="button" class="av" [class.on]="pickedAvatar() === a" (click)="pickedAvatar.set(a)" [attr.aria-pressed]="pickedAvatar() === a">{{ a }}</button>
             }
           </div>
-          <div class="profile-name">{{ profile()!.fullName }}</div>
-          <div class="profile-email">{{ profile()!.email }}</div>
-          <div class="profile-badges">
-            <span class="badge badge-gold">{{ profile()!.role }}</span>
-            @if (profile()!.emailVerified) {
-              <span class="badge badge-teal">✓ Verified</span>
+        </div>
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" maxlength="100" [(ngModel)]="fullName" />
+        </div>
+        <div class="field">
+          <label for="bio">Bio <span class="hint">(optional)</span></label>
+          <textarea id="bio" maxlength="255" rows="2" [(ngModel)]="bio" placeholder="A line about you"></textarea>
+          <span class="counter">{{ bio.length }} / 255</span>
+        </div>
+        <button type="button" class="btn" (click)="saveProfile()" [disabled]="savingProfile()">
+          @if (savingProfile()) { <span class="spinner"></span> } Save profile
+        </button>
+      </section>
+
+      <!-- Settings -->
+      <section class="card">
+        <div class="card-head"><h3>Settings</h3><span class="meta">synced with your phone</span></div>
+        <div class="setting">
+          <div><b>Theme</b><span>Light, dark, or follow your device</span></div>
+          <div class="segmented" role="radiogroup" aria-label="Theme">
+            @for (t of themes; track t.key) {
+              <button type="button" role="radio" [class.on]="theme.preference() === t.key" [attr.aria-checked]="theme.preference() === t.key" (click)="setTheme(t.key)">{{ t.label }}</button>
             }
           </div>
-          @if (profile()!.bio) {
-            <p class="profile-bio">{{ profile()!.bio }}</p>
+        </div>
+        <div class="setting">
+          <div><b>Time zone</b><span>Decides when your "today" starts and ends</span></div>
+          <div class="zone">
+            <select class="input" [ngModel]="zone" (ngModelChange)="saveZone($event)" aria-label="Time zone" [disabled]="savingZone()">
+              @for (z of zones; track z) { <option [value]="z">{{ z }}</option> }
+            </select>
+            @if (zone !== browserZone) {
+              <button type="button" class="link-btn small" (click)="saveZone(browserZone)">Use this computer's ({{ browserZone }})</button>
+            }
+          </div>
+        </div>
+        <div class="setting">
+          <div><b>Daily reminder</b><span>Rings on your phone · change it in the app</span></div>
+          <span class="chip">{{ reminder() || '…' }}</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <!-- Places -->
+      <section class="card">
+        <div class="card-head"><h3>Your places</h3><span class="meta">{{ custom().length }} / {{ maxCustom }} custom</span></div>
+        @if (places() === null) {
+          <div class="skeleton" style="height: 80px"></div>
+        } @else {
+          <div class="chips">
+            @for (p of presets(); track p.placeId) {
+              <span class="chip"><span class="emoji">{{ p.icon }}</span> {{ p.name }}</span>
+            }
+            @for (p of custom(); track p.placeId) {
+              <span class="chip pink custom">
+                <span class="emoji">{{ p.icon }}</span> {{ p.name }}
+                <button type="button" (click)="archivePlace(p)" [attr.aria-label]="'Hide ' + p.name" title="Hide this place">✕</button>
+              </span>
+            }
+          </div>
+          @if (custom().length < maxCustom) {
+            <form class="add" (ngSubmit)="addPlace()">
+              <select class="input icon" [(ngModel)]="newPlaceIcon" name="icon" aria-label="Icon">
+                @for (i of placeIcons; track i) { <option [value]="i">{{ i }}</option> }
+              </select>
+              <input class="input" name="place" maxlength="40" placeholder="Add a place, e.g. Library" [(ngModel)]="newPlaceName" />
+              <button type="submit" class="btn small" [disabled]="!newPlaceName.trim() || addingPlace()">Add</button>
+            </form>
           }
-        </div>
-      </div>
+          <p class="hint">Hiding a place keeps it on your old moments. Built-in places can't be removed.</p>
+        }
+      </section>
 
-      <!-- Main Form -->
-      <div class="profile-main">
-        <div class="mc-card form-card">
-          <h3>Personal Information</h3>
-          <form [formGroup]="form" (ngSubmit)="onSave()">
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Full Name</label>
-                <input class="form-control" type="text" formControlName="fullName" placeholder="Jane Doe" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Avatar URL</label>
-                <input class="form-control" type="url" formControlName="avatarUrl" placeholder="https://…" />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Bio</label>
-              <textarea class="form-control" formControlName="bio" rows="3"
-                placeholder="Tell something about yourself…" maxlength="255"></textarea>
-            </div>
-
-            <div class="divider"></div>
-            <h4 class="section-sub">Preferences</h4>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">Theme</label>
-                <select class="form-control" formControlName="themePreference">
-                  <option value="DARK">Dark (Recommended)</option>
-                  <option value="LIGHT">Light</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Reminder Time</label>
-                <input class="form-control" type="time" formControlName="reminderTime" />
-              </div>
-            </div>
-
-            <div class="form-group reminder-toggle">
-              <label class="toggle-row">
-                <span class="toggle-label">
-                  <strong>Daily Reminder</strong>
-                  <span class="toggle-hint">Get reminded to log your mood</span>
-                </span>
-                <div class="toggle-switch" [class.on]="form.get('reminderAllowed')?.value" (click)="toggleReminder()">
-                  <div class="toggle-thumb"></div>
-                </div>
-              </label>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="saving()">
-                @if (saving()) {
-                  <span class="spinner spinner-sm"></span>
-                } @else {
-                  Save Changes
-                }
-              </button>
-              <button type="button" class="btn btn-ghost" (click)="resetForm()">Reset</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Danger Zone -->
-        <div class="mc-card danger-card">
-          <h3>Account Actions</h3>
-          <div class="danger-row">
-            <div class="danger-info">
-              <strong>Sign Out</strong>
-              <span>Log out from this browser session.</span>
-            </div>
-            <button class="btn btn-danger" (click)="logout()">Sign Out</button>
-          </div>
-        </div>
-      </div>
+      <!-- Your data -->
+      <section class="card">
+        <div class="card-head"><h3>Your data</h3></div>
+        <button type="button" class="row-link" (click)="exportCsv()" [disabled]="exporting()">
+          <span class="emoji">📤</span>
+          <div><b>Export my data</b><span>All moments and reflections as a CSV file</span></div>
+          @if (exporting()) { <span class="spinner dark"></span> } @else { <span class="go">→</span> }
+        </button>
+        <a class="row-link" [href]="privacyUrl" target="_blank" rel="noopener">
+          <span class="emoji">🔒</span>
+          <div><b>Privacy policy</b><span>What we keep and why</span></div><span class="go">↗</span>
+        </a>
+        <a class="row-link" [href]="termsUrl" target="_blank" rel="noopener">
+          <span class="emoji">📄</span>
+          <div><b>Terms of service</b><span>The rules of MoodCapsule</span></div><span class="go">↗</span>
+        </a>
+        <button type="button" class="row-link danger" (click)="showDelete.set(true)">
+          <span class="emoji">🗑️</span>
+          <div><b>Delete account</b><span>Permanently removes everything</span></div><span class="go">→</span>
+        </button>
+      </section>
     </div>
-  }
+  </div>
 </div>
+
+@if (showDelete()) {
+  <div class="scrim" (click)="closeDelete()"></div>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="del-title">
+    <h2 id="del-title">Delete your account?</h2>
+    <p class="muted">This permanently deletes your account, all moments, reflections, places and time capsules. It can't be undone.
+      Want a copy first? <button type="button" class="link-btn" (click)="exportCsv()">Export your data</button>.</p>
+    @if (deleteError()) { <div class="form-error">{{ deleteError() }}</div> }
+    <div class="field">
+      <label for="dpw">Your password</label>
+      <input id="dpw" type="password" autocomplete="current-password" [(ngModel)]="deletePassword" />
+      <span class="hint">Signed up with Google? Set a password first with "Forgot password" on the sign-in page.</span>
+    </div>
+    <div class="field">
+      <label for="dconf">Type DELETE to confirm</label>
+      <input id="dconf" autocomplete="off" [(ngModel)]="deleteConfirm" />
+    </div>
+    <div class="actions">
+      <button type="button" class="btn ghost" (click)="closeDelete()">Cancel</button>
+      <button type="button" class="btn danger" (click)="deleteAccount()" [disabled]="deleteConfirm !== 'DELETE' || !deletePassword || deleting()">
+        @if (deleting()) { <span class="spinner"></span> } Delete forever
+      </button>
+    </div>
+  </div>
+}

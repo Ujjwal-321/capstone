@@ -1,0 +1,40 @@
+.eyebrow { font-size: 13px; opacity: .9; }
+.glance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; position: relative; z-index: 1; }
+.glass .emoji { font-size: 18px; }
+.skel { min-height: 62px; }
+@media (max-width: 720px) { .glance { grid-template-columns: 1fr 1fr; } }
+
+.cols { margin-top: 20px; align-items: start; }
+
+.refl { margin: 8px 0 4px; }
+.refl b { font-size: 11px; letter-spacing: .06em; color: var(--chip-lav-fg); }
+.refl p { margin-top: 4px; font-size: 13.5px; }
+.app-nudge { margin-top: 12px; }
+
+.empty.small { padding: 16px 8px; }
+.empty.small .big { font-size: 32px; }
+
+.memory + .memory { border-top: 1px solid var(--stroke); margin-top: 6px; padding-top: 6px; }
+.mem-head {
+  display: flex; justify-content: space-between; width: 100%; background: none; border: 0; padding: 4px 0 0;
+  font: 600 12px var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--chip-lav-fg); cursor: pointer;
+  .meta { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--text-2); }
+}
+
+.capsule-card {
+  display: flex; align-items: center; gap: 14px; color: var(--ink); text-decoration: none;
+  background: var(--grad-tint); transition: transform .15s;
+  &:hover { text-decoration: none; transform: translateY(-2px); }
+  .big { font-size: 36px; }
+  h3 { margin-bottom: 2px; }
+  p { font-size: 13px; }
+  .go { margin-left: auto; font-size: 20px; color: var(--primary); }
+}
+
+.legend {
+  display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 10px; font-size: 11px; color: var(--text-2);
+  i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  span { margin: 0 4px; }
+}
+
+.link.small { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600; }

@@ -1,0 +1,61 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Your story, in one picture</p>
+      <h1>Capsule Wrapped 🎁</h1>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="card controls">
+      <div class="field">
+        <label>Recap</label>
+        <div class="segmented" role="radiogroup" aria-label="Recap type">
+          <button type="button" role="radio" [class.on]="kind() === 'month'" [attr.aria-checked]="kind() === 'month'" (click)="setKind('month')">Month</button>
+          <button type="button" role="radio" [class.on]="kind() === 'year'" [attr.aria-checked]="kind() === 'year'" (click)="setKind('year')">Year</button>
+        </div>
+      </div>
+
+      @if (kind() === 'month') {
+        <div class="field">
+          <label for="m">Month</label>
+          <select id="m" [ngModel]="month()" (ngModelChange)="month.set($event); load()">
+            @for (o of months(); track o.key) { <option [value]="o.key">{{ o.label }}</option> }
+          </select>
+        </div>
+      } @else {
+        <div class="field">
+          <label for="y">Year</label>
+          <select id="y" [ngModel]="year()" (ngModelChange)="year.set(+$event); load()">
+            @for (y of years(); track y) { <option [value]="y">{{ y }}</option> }
+          </select>
+        </div>
+      }
+
+      @if (error()) { <div class="form-error">{{ error() }}</div> }
+
+      <div class="buttons">
+        <button type="button" class="btn block" (click)="download()" [disabled]="loading() || !data()">⬇️ Download image</button>
+        @if (canShare) {
+          <button type="button" class="btn ghost block" (click)="share()" [disabled]="loading() || !data()">📤 Share</button>
+        }
+      </div>
+      <p class="hint">The image only shows totals and emojis. None of your sentences are on it, so it's safe to share.</p>
+
+      @if (data(); as d) {
+        <ul class="facts">
+          <li><span class="emoji">📝</span> {{ d.moments }} moments over {{ d.days }} days</li>
+          @if (d.top) { <li><span class="emoji">{{ d.top.symbol }}</span> Most logged: {{ d.top.label }}</li> }
+          @if (d.bestPlace) { <li><span class="emoji">{{ d.bestPlace.icon }}</span> Happiest at {{ d.bestPlace.label }}</li> }
+          <li><span class="emoji">✦</span> {{ d.personality }}</li>
+        </ul>
+      }
+    </section>
+
+    <section class="preview">
+      @if (loading()) { <div class="loading"><span class="spinner dark"></span> Building your recap…</div> }
+      <canvas #card class="card-canvas" [class.dim]="loading()" role="img"
+              [attr.aria-label]="'Capsule Wrapped card for ' + (data()?.title ?? '')"></canvas>
+    </section>
+  </div>
+</div>

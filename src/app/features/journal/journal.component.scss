@@ -1,0 +1,25 @@
+.eyebrow { font-size: 13px; color: var(--text-2); }
+.count { font-size: 13px; }
+
+.layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+.filters { position: sticky; top: 20px; }
+@media (max-width: 1000px) { .filters { position: static; } }
+.filters .chips { gap: 6px; }
+.dates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dates input { padding: 10px; font-size: 13px; }
+.lock { margin-top: 14px; }
+
+.timeline { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+.day-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--stroke); margin-bottom: 2px;
+  h2 { font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--chip-lav-fg); }
+}
+.avg { font-size: 12.5px; color: var(--text-2); font-weight: 600; }
+.refl { margin: 10px 0 2px; }
+.refl b { font-size: 11px; letter-spacing: .06em; color: var(--chip-lav-fg); }
+.refl p { margin-top: 4px; font-size: 13.5px; }
+.more { align-self: center; }
+.end { text-align: center; }
