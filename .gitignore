@@ -1,0 +1,20 @@
+# Dependencies and build output (never commit these)
+/node_modules
+/dist
+/.angular
+/out-tsc
+
+# Editors and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and local env files
+npm-debug.log*
+yarn-error.log
+*.log
+.env
+.env.*

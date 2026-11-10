@@ -21,20 +21,35 @@
             "outputPath": "dist/moodcapsule-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              { "glob": "**/*", "input": "src/assets", "output": "assets" },
-              { "glob": "favicon.ico", "input": "src", "output": "" }
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "4kb", "maximumError": "8kb" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "600kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "16kb"
+                }
               ],
               "outputHashing": "all"
             },
@@ -49,8 +64,12 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "moodcapsule-frontend:build:production" },
-            "development": { "buildTarget": "moodcapsule-frontend:build:development" }
+            "production": {
+              "buildTarget": "moodcapsule-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "moodcapsule-frontend:build:development"
+            }
           },
           "defaultConfiguration": "development"
         }

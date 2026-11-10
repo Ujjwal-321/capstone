@@ -1,34 +1,67 @@
-import { Component, signal, HostListener, computed, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { ProfileStore } from '../../../core/services/profile.store';
+import { ThemeService } from '../../../core/services/theme.service';
+import { avatarEmoji, isImageAvatar } from '../../../core/utils/avatar';
+import { environment } from '../../../../environments/environment';
 
+interface NavItem { path: string; label: string; icon: string; }
+
+/** App shell: gradient sidebar (desktop) / slide-in menu (phone) + page outlet. */
 @Component({
-  selector: 'app-layout',
+  selector: 'mc-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, DatePipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
-export class LayoutComponent {
-  private auth = inject(AuthService);
+export class LayoutComponent implements OnInit {
+  readonly auth = inject(AuthService);
+  readonly store = inject(ProfileStore);
+  readonly theme = inject(ThemeService);
+  private readonly router = inject(Router);
 
-  sidebarCollapsed = signal(false);
-  mobileOpen       = signal(false);
-  today            = new Date();
+  readonly menuOpen = signal(false);
+  readonly playStoreUrl = environment.playStoreUrl;
 
-  userName    = computed(() => this.auth.user()?.fullName ?? 'User');
-  userRole    = computed(() => this.auth.user()?.role === 'ADMIN' ? 'Admin' : 'Member');
-  isAdmin     = computed(() => this.auth.isAdmin());
-  userInitial = computed(() => (this.auth.user()?.fullName ?? 'U').charAt(0).toUpperCase());
+  readonly look: NavItem[] = [
+    { path: '/overview', label: 'Overview', icon: '🏠' },
+    { path: '/pixels', label: 'Year in Pixels', icon: '🟪' },
+    { path: '/journal', label: 'Journal', icon: '📖' },
+    { path: '/insights', label: 'Insights', icon: '📊' }
+  ];
+  readonly keep: NavItem[] = [
+    { path: '/capsules', label: 'Time Capsules', icon: '🕰️' },
+    { path: '/weekly', label: 'Weekly review', icon: '🗓️' },
+    { path: '/wrapped', label: 'Capsule Wrapped', icon: '🎁' }
+  ];
 
-  toggleSidebar() { this.sidebarCollapsed.update(v => !v); }
-  toggleMobile()  { this.mobileOpen.update(v => !v); }
-  closeMobile()   { this.mobileOpen.set(false); }
-  logout()        { this.auth.logout(); }
+  readonly name = computed(() => this.store.profile()?.fullName || this.auth.user()?.fullName || 'You');
+  readonly email = computed(() => this.store.profile()?.email || this.auth.user()?.email || '');
+  readonly avatar = computed(() => avatarEmoji(this.store.profile()?.avatarUrl));
+  readonly avatarImage = computed(() => {
+    const url = this.store.profile()?.avatarUrl;
+    return isImageAvatar(url) ? url : null;
+  });
 
-  @HostListener('window:resize')
-  onResize() {
-    if (window.innerWidth > 768) this.mobileOpen.set(false);
+  constructor() {
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => this.menuOpen.set(false));
+  }
+
+  ngOnInit(): void {
+    this.store.load();
+  }
+
+  toggleTheme(): void {
+    this.theme.set(this.theme.dark() ? 'LIGHT' : 'DARK');
+    // Remember the choice on the account too, like the phone app does
+    this.store.save({ themePreference: this.theme.preference() }).subscribe({ error: () => {} });
+  }
+
+  signOut(): void {
+    this.store.clear();
+    this.auth.logout();
   }
 }

@@ -1,180 +1,75 @@
-<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
+<a class="skip" href="#main">Skip to content</a>
 
-  <!-- ── Sidebar ─────────────────────────────────────── -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
+<header class="topbar">
+  <button class="icon-btn" type="button" (click)="menuOpen.set(true)" aria-label="Open menu">☰</button>
+  <a routerLink="/overview" class="brand small">
+    <img src="assets/brand/moodcapsule-icon.svg" alt="" width="28" height="28" />
+    <span>MoodCapsule</span>
+  </a>
+  <span class="avatar sm emoji">{{ avatar() }}</span>
+</header>
 
-    <div class="sidebar-header">
-      <div class="brand" routerLink="/dashboard">
-        <div class="brand-icon">💊</div>
-        @if (!sidebarCollapsed()) {
-          <span class="brand-name">MoodCapsule</span>
-        }
-      </div>
-      <button class="collapse-btn" (click)="toggleSidebar()">
-        @if (!sidebarCollapsed()) {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        } @else {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
-        }
-      </button>
+@if (menuOpen()) {
+  <div class="scrim" (click)="menuOpen.set(false)"></div>
+}
+
+<aside class="sidebar" [class.open]="menuOpen()">
+  <a routerLink="/overview" class="brand">
+    <img src="assets/brand/moodcapsule-icon.svg" alt="" width="36" height="36" />
+    <span>MoodCapsule</span>
+  </a>
+
+  <nav aria-label="Main">
+    <p class="group">Look back</p>
+    @for (item of look; track item.path) {
+      <a class="nav" [routerLink]="item.path" routerLinkActive="on" ariaCurrentWhenActive="page">
+        <span class="emoji">{{ item.icon }}</span>{{ item.label }}
+      </a>
+    }
+    <p class="group">Keep</p>
+    @for (item of keep; track item.path) {
+      <a class="nav" [routerLink]="item.path" routerLinkActive="on" ariaCurrentWhenActive="page">
+        <span class="emoji">{{ item.icon }}</span>{{ item.label }}
+      </a>
+    }
+    <p class="group">You</p>
+    <a class="nav" routerLink="/profile" routerLinkActive="on" ariaCurrentWhenActive="page">
+      <span class="emoji">👤</span>Profile & data
+    </a>
+    @if (auth.isAdmin()) {
+      <a class="nav" routerLink="/admin" routerLinkActive="on" ariaCurrentWhenActive="page">
+        <span class="emoji">🛡️</span>Admin
+      </a>
+    }
+  </nav>
+
+  <div class="phone-card">
+    <span class="emoji">📱</span>
+    <div>
+      <b>Log moments on your phone</b>
+      <a [href]="playStoreUrl" target="_blank" rel="noopener">Get the Android app</a>
     </div>
-
-    @if (!sidebarCollapsed()) {
-      <div class="sidebar-date">
-        <span class="date-day">{{ today | date:'EEEE' }}</span>
-        <span class="date-full">{{ today | date:'MMMM d, y' }}</span>
-      </div>
-    }
-
-    <nav class="sidebar-nav">
-      @if (!sidebarCollapsed()) {
-        <div class="nav-section-label">Main</div>
-      }
-
-      <a class="nav-item" routerLink="/dashboard" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'Dashboard' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <rect x="3" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/>
-            <rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">Dashboard</span> }
-      </a>
-
-      <a class="nav-item" routerLink="/mood/log" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'Log Mood' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-            <line x1="9" y1="9" x2="9.01" y2="9"/>
-            <line x1="15" y1="9" x2="15.01" y2="9"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">Log Mood</span> }
-      </a>
-
-      <a class="nav-item" routerLink="/mood/history" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'History' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8"  y1="2" x2="8"  y2="6"/>
-            <line x1="3"  y1="10" x2="21" y2="10"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">History</span> }
-      </a>
-
-      @if (!sidebarCollapsed()) {
-        <div class="nav-section-label">Insights</div>
-      }
-
-      <a class="nav-item" routerLink="/stats/overview" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'Statistics' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">Statistics</span> }
-      </a>
-
-      <a class="nav-item" routerLink="/stats/recap" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'Year Recap' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">Year Recap</span> }
-      </a>
-
-      <div class="nav-divider"></div>
-
-      <a class="nav-item" routerLink="/profile" routerLinkActive="active"
-         [attr.data-tooltip]="sidebarCollapsed() ? 'Profile' : null">
-        <span class="nav-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-        </span>
-        @if (!sidebarCollapsed()) { <span class="nav-label">Profile</span> }
-      </a>
-
-      @if (isAdmin()) {
-        <a class="nav-item admin-link" routerLink="/admin" routerLinkActive="active"
-           [attr.data-tooltip]="sidebarCollapsed() ? 'Admin' : null">
-          <span class="nav-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </span>
-          @if (!sidebarCollapsed()) { <span class="nav-label">Admin</span> }
-        </a>
-      }
-    </nav>
-
-    @if (!sidebarCollapsed()) {
-      <div class="sidebar-footer">
-        <div class="user-pill">
-          <div class="user-avatar">{{ userInitial() }}</div>
-          <div class="user-info">
-            <span class="user-name">{{ userName() }}</span>
-            <span class="user-role">{{ userRole() }}</span>
-          </div>
-          <button class="logout-btn" (click)="logout()" data-tooltip="Logout">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    } @else {
-      <div class="sidebar-footer-collapsed">
-        <button class="logout-btn-icon" (click)="logout()" data-tooltip="Logout">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
-      </div>
-    }
-  </aside>
-
-  <!-- ── Mobile Overlay ──────────────────────────────── -->
-  @if (mobileOpen()) {
-    <div class="mobile-overlay" (click)="closeMobile()"></div>
-  }
-
-  <!-- ── Main Content ────────────────────────────────── -->
-  <div class="main-area">
-    <header class="topbar">
-      <button class="mobile-menu-btn" (click)="toggleMobile()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6"  x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div class="brand-mobile">💊 MoodCapsule</div>
-      <div class="topbar-avatar">{{ userInitial() }}</div>
-    </header>
-
-    <main class="content-area">
-      <router-outlet />
-    </main>
   </div>
-</div>
+
+  <div class="me">
+    @if (avatarImage(); as img) {
+      <img class="avatar" [src]="img" alt="" />
+    } @else {
+      <span class="avatar emoji">{{ avatar() }}</span>
+    }
+    <div class="who">
+      <b>{{ name() }}</b>
+      <span>{{ email() }}</span>
+    </div>
+  </div>
+  <div class="actions">
+    <button type="button" class="pill" (click)="toggleTheme()" [attr.aria-label]="theme.dark() ? 'Switch to light mode' : 'Switch to dark mode'">
+      <span class="emoji">{{ theme.dark() ? '☀️' : '🌙' }}</span>{{ theme.dark() ? 'Light' : 'Dark' }}
+    </button>
+    <button type="button" class="pill" (click)="signOut()">Sign out</button>
+  </div>
+</aside>
+
+<main id="main" class="content">
+  <router-outlet />
+</main>
