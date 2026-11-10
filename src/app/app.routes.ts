@@ -40,8 +40,8 @@ export const routes: Routes = [
       { path: 'capsules', title: 'Time Capsules · MoodCapsule', loadComponent: () => import('./features/capsules/capsules.component').then(m => m.CapsulesComponent) },
       { path: 'weekly', title: 'Weekly review · MoodCapsule', loadComponent: soon, data: { title: 'Weekly review', emoji: '🗓️' } },
       { path: 'wrapped', title: 'Capsule Wrapped · MoodCapsule', loadComponent: soon, data: { title: 'Capsule Wrapped', emoji: '🎁' } },
-      { path: 'profile', title: 'Profile · MoodCapsule', loadComponent: soon, data: { title: 'Profile & your data', emoji: '👤' } },
-      { path: 'admin', title: 'Admin · MoodCapsule', canActivate: [adminGuard], loadComponent: soon, data: { title: 'Admin', emoji: '🛡️' } },
+      { path: 'profile', title: 'Profile · MoodCapsule', loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
+      { path: 'admin', title: 'Admin · MoodCapsule', canActivate: [adminGuard], loadComponent: () => import('./features/admin/admin.component').then(m => m.AdminComponent) },
 
       // Old addresses from the previous web app
       { path: 'dashboard', redirectTo: 'overview' },
