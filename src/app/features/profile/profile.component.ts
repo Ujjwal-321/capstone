@@ -10,6 +10,7 @@ import { Place, ThemePreference } from '../../core/models';
 import { AVATAR_CHOICES, avatarEmoji, isImageAvatar } from '../../core/utils/avatar';
 import { browserZone, clockTime } from '../../core/utils/dates';
 import { errorMessage } from '../../core/utils/errors';
+import { GoogleButtonComponent } from '../../shared/components/google-button/google-button.component';
 import { environment } from '../../../environments/environment';
 
 const MAX_CUSTOM_PLACES = 10;
@@ -18,7 +19,7 @@ const MAX_CUSTOM_PLACES = 10;
 @Component({
   selector: 'mc-profile',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, GoogleButtonComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
@@ -175,9 +176,19 @@ export class ProfileComponent implements OnInit {
 
   deleteAccount(): void {
     if (this.deleteConfirm !== 'DELETE' || !this.deletePassword || this.deleting()) return;
+    this.runDelete({ password: this.deletePassword });
+  }
+
+  /** Accounts made with "Continue with Google" confirm with the same Google account instead of a password. */
+  deleteWithGoogle(idToken: string): void {
+    if (this.deleteConfirm !== 'DELETE' || this.deleting()) return;
+    this.runDelete({ googleIdToken: idToken });
+  }
+
+  private runDelete(confirm: { password?: string; googleIdToken?: string }): void {
     this.deleting.set(true);
     this.deleteError.set('');
-    this.api.deleteMe(this.deletePassword).subscribe({
+    this.api.deleteMe(confirm).subscribe({
       next: () => {
         this.store.clear();
         this.auth.forget();
