@@ -17,11 +17,17 @@ export const routes: Routes = [
 
   // Reached from emails, so they work signed in or out
   {
-    path: '',
+    path: 'verify-email',
     loadComponent: () => import('./features/auth/auth-shell.component').then(m => m.AuthShellComponent),
     children: [
-      { path: 'verify-email', title: 'Verify email · MoodCapsule', loadComponent: () => import('./features/auth/verify-email.component').then(m => m.VerifyEmailComponent) },
-      { path: 'reset-password', title: 'Reset password · MoodCapsule', loadComponent: () => import('./features/auth/reset-password.component').then(m => m.ResetPasswordComponent) }
+      { path: '', title: 'Verify email · MoodCapsule', loadComponent: () => import('./features/auth/verify-email.component').then(m => m.VerifyEmailComponent) }
+    ]
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/auth-shell.component').then(m => m.AuthShellComponent),
+    children: [
+      { path: '', title: 'Reset password · MoodCapsule', loadComponent: () => import('./features/auth/reset-password.component').then(m => m.ResetPasswordComponent) }
     ]
   },
 
