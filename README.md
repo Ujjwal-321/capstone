@@ -1,119 +1,49 @@
-# 💊 MoodCapsule Frontend — Angular
+# MoodCapsule – Web (Angular)
 
-A professional, production-grade Angular frontend for the MoodCapsule Spring Boot backend.
+The web app is MoodCapsule's **reflection desk**. Moments are logged on the phone (Android app); the web is for
+looking back: your days, your patterns and your time capsules, on a big screen. It uses the same account and
+REST API as Android and the same "Dreamy Gradient" design (light + dark).
 
----
+## Pages
 
-## ✨ Design System
+| Page | What it does |
+|---|---|
+| Sign in / Create account / Verify email / Forgot + Reset password | Email + password, or **Continue with Google** (MC-69) |
+| Overview | This week at a glance, today's moments (read-only), On this day, capsules, 15-week heatmap, happiest places |
+| Year in Pixels | One square per day coloured by mood; click a day to read it; month-by-month averages |
+| Journal | Every moment grouped by day with reflections; search, place, mood and date filters |
+| Insights | Mood over time, by place, by time of day, by weekday, mood mix, year so far |
+| Time Capsules (MC-67) | Countdowns, opening animation, re-read opened ones, seal a new letter to future you |
+| Weekly review | The week's days, best/toughest day, happiest place, reflections, a short summary |
+| Capsule Wrapped | Monthly or yearly recap card – download as PNG or share |
+| Profile & data | Avatar, name, bio, theme, time zone, places, export CSV, privacy, delete account |
+| Admin | Search accounts, deactivate / reactivate (admins never see anyone's moments) |
 
-**Aesthetic: Dark Luxury — Midnight Ink with Champagne Gold**
-
-- **Fonts**: Playfair Display (headings) + DM Sans (body) + DM Mono (data)
-- **Color Palette**: Midnight base (#0a0b0f) · Champagne gold accents · Teal secondary
-- **Motion**: Staggered fade-in animations, floating emoji, smooth transitions
-- **Layout**: Collapsible sidebar (260px) + responsive main area
-
----
-
-## 📦 Pages & Features
-
-| Page            | Route                | Description                              |
-|-----------------|----------------------|------------------------------------------|
-| Login           | `/auth/login`        | Split panel with feature highlights      |
-| Register        | `/auth/register`     | Multi-step with password strength        |
-| Forgot Password | `/auth/forgot-password` | Email reset flow                      |
-| Verify Email    | `/verify-email`      | 6-digit code entry                       |
-| Reset Password  | `/reset-password`    | Token-based password reset               |
-| **Dashboard**   | `/dashboard`         | Stats cards, today's mood, recent history |
-| Log Mood        | `/mood/log`          | Full-page emoji selector + journal       |
-| History         | `/mood/history`      | Filtered, paginated mood entries         |
-| Statistics      | `/stats/overview`    | SVG trend chart + mood distribution      |
-| Year Recap      | `/stats/recap`       | Full yearly emotional summary            |
-| Profile         | `/profile`           | Edit profile, theme, reminders           |
-| Admin Panel     | `/admin`             | User management (ADMIN role only)        |
-
----
-
-## 🚀 Setup & Run
-
-### Prerequisites
-- Node.js 20+
-- Angular CLI 21: `npm install -g @angular/cli@21`
-- MoodCapsule backend running on `http://localhost:8080`
-
-### Install & Start
+## Run it
 
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start the dev server
-ng serve
-
-# 3. Open browser
-http://localhost:4200
+npm install          # first time only
+npm start            # = ng serve → http://localhost:4200
+npm run build        # production build → dist/moodcapsule-frontend/browser
 ```
 
-### Build for Production
-```bash
-ng build --configuration production
-```
+The backend address and the Google **web** client ID are in `src/environments/environment.ts`
+(the Azure server by default – it allows `http://localhost:4200`). Every address that serves the web app
+must be added to:
+- the backend's `CORS_ALLOWED_ORIGINS` (Azure → Environment variables), and
+- "Authorized JavaScript origins" of the Web OAuth client in Google Cloud (for the Google button).
 
----
-
-## 🔗 Backend API
-
-The frontend points to `http://localhost:8080/api`.
-
-To change the base URL, edit:
-```
-src/app/core/services/auth.service.ts
-export const API_BASE = 'http://localhost:8080/api';
-```
-
-CORS is already configured in the Spring Boot backend to allow all origins.
-
----
-
-## 📁 Project Structure
+## Structure
 
 ```
 src/app/
-├── core/
-│   ├── guards/           # authGuard, adminGuard, guestGuard
-│   ├── interceptors/     # JWT token interceptor + auto-refresh
-│   ├── models/           # All TypeScript interfaces matching backend DTOs
-│   └── services/         # AuthService, MoodService, StatsService, UserService, AdminService, ToastService
-├── shared/
-│   └── components/
-│       ├── layout/       # Sidebar + topbar shell
-│       └── toast-container/
-├── features/
-│   ├── auth/             # login, register, forgot-password, verify-email, reset-password
-│   ├── dashboard/        # Main dashboard
-│   ├── mood/             # log-mood, history
-│   ├── stats/            # overview (trend chart), recap (yearly)
-│   ├── profile/          # user settings
-│   └── admin/            # admin panel
-└── styles.scss           # Complete design system (CSS variables, components, utilities)
+  core/        models, ApiService (all endpoints), AuthService, ProfileStore, ThemeService, ToastService,
+               JWT interceptor (refreshes once on 401), guards, utils (dates in the user's time zone, mood colours)
+  shared/      layout (sidebar), toast container, Google button, 6-digit code input, moment card,
+               day panel, mood heatmap, mood line chart
+  features/    auth, overview, pixels, journal, insights, capsules, weekly, wrapped, profile, admin
+src/styles.scss  design tokens (same names/colours as the Android app) + shared components
+src/assets/      Poppins font files, MoodCapsule logo
 ```
 
----
-
-## 🎨 Key Design Decisions
-
-- **Standalone Components** — Angular 17 modern pattern, no NgModules
-- **Signals** — Reactive state management using Angular signals
-- **Lazy Loading** — Every feature module is lazy-loaded for performance
-- **CSS Variables** — Full design token system, easy theming
-- **SVG Charts** — Hand-crafted SVG trend chart (no external chart library needed)
-- **Auth Guard + JWT Interceptor** — Auto-refresh on 401, auto-logout on refresh failure
-
----
-
-## 👥 Team: Capsule Labs
-- UJ · Aaditya Subedi · Aryan Puchimada · Lovepreet Toor
-
----
-
-*Sheridan College — Software Development & Network Engineering — Capstone Project*
+`node_modules`, `dist` and `.angular` are build output – they're in `.gitignore` and must never be committed.

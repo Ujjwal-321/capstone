@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, shareReplay } from 'rxjs';
+import { Observable, map, of, shareReplay, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ApiResponse, Capsule, Emoji, HistoryQuery, Moment, Page, Place, PlaceStat, Reflection,
@@ -77,6 +77,16 @@ export class ApiService {
     return this.http.get<ApiResponse<Page<Moment>>>(`${API}/moods/history`, {
       params: params({ ...q })
     }).pipe(data());
+  }
+
+  /** Every moment between two dates, oldest pages first (up to 500 – plenty for a week or a month). */
+  allMoments(startDate: string, endDate: string): Observable<Moment[]> {
+    const fetch = (page: number, acc: Moment[]): Observable<Moment[]> =>
+      this.history({ startDate, endDate, page, size: 100 }).pipe(switchMap(res => {
+        const all = [...acc, ...res.content];
+        return res.last || page >= 4 ? of(all) : fetch(page + 1, all);
+      }));
+    return fetch(0, []);
   }
 
   reflections(startDate?: string, endDate?: string): Observable<Reflection[]> {

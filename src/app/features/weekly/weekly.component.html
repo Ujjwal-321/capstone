@@ -1,0 +1,88 @@
+<div class="page">
+  <section class="hero">
+    <div class="head">
+      <div>
+        <p class="eyebrow">Weekly review · {{ range() }}</p>
+        <h1>{{ title() }}</h1>
+      </div>
+      <div class="nav">
+        <button type="button" (click)="move(-1)" aria-label="Previous week">←</button>
+        <button type="button" (click)="move(1)" [disabled]="isCurrent()" aria-label="Next week">→</button>
+      </div>
+    </div>
+
+    <div class="strip">
+      @for (d of days(); track d.date) {
+        <button type="button" class="day" [class.future]="d.future" [disabled]="d.future" (click)="openDay.set(d.date)"
+                [attr.aria-label]="d.name + ': ' + (d.count ? score1(d.avg) + ', ' + d.count + ' moments' : 'no moments')">
+          <span class="dname">{{ d.short }}</span>
+          <span class="bubble" [style.background]="d.count ? color(d.avg) : 'rgba(255,255,255,.18)'">
+            <span class="emoji">{{ d.count ? face(d.avg) : (d.future ? '' : '·') }}</span>
+          </span>
+          <span class="dcount">{{ d.count ? d.count : '' }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (error()) { <div class="form-error" style="margin-top: 16px">{{ error() }} <button type="button" class="link-btn" (click)="load()">Try again</button></div> }
+
+  @if (moments() === null) {
+    <div class="skeleton" style="height: 260px; margin-top: 20px"></div>
+  } @else {
+    <section class="card summary">
+      <span class="emoji big">{{ stats().moments ? face(stats().avg) : '🌱' }}</span>
+      <p>{{ summary() }}</p>
+    </section>
+
+    <div class="grid-4 tiles">
+      <div class="tile"><b>{{ stats().moments }}</b><span>moments</span></div>
+      <div class="tile"><b>{{ stats().days }} / 7</b><span>days logged</span></div>
+      <div class="tile"><b><span class="emoji">{{ face(stats().avg) }}</span> {{ score1(stats().avg) }}</b><span>{{ delta() || 'average day' }}</span></div>
+      <div class="tile"><b><span class="emoji">{{ stats().top?.symbol || '·' }}</span> {{ stats().top?.label || '–' }}</b><span>mood of the week</span></div>
+    </div>
+
+    <div class="grid-2 cols">
+      <section class="card">
+        <div class="card-head"><h3>Best and toughest</h3></div>
+        @if (stats().best; as b) {
+          <button type="button" class="pick best" (click)="openDay.set(b.date)">
+            <span class="emoji">{{ face(b.avg) }}</span>
+            <div><b>{{ b.name }}</b><span>felt best · {{ score1(b.avg) }}</span></div><span class="go">→</span>
+          </button>
+          @if (stats().worst; as w) {
+            @if (w.date !== b.date) {
+              <button type="button" class="pick worst" (click)="openDay.set(w.date)">
+                <span class="emoji">{{ face(w.avg) }}</span>
+                <div><b>{{ w.name }}</b><span>was the heaviest · {{ score1(w.avg) }}</span></div><span class="go">→</span>
+              </button>
+            }
+          }
+        } @else {
+          <p class="muted">Log a few days and your best and toughest days show up here.</p>
+        }
+        @if (places().length || times().length) {
+          <div class="mini">
+            @if (places()[0]; as p) { <span class="chip"><span class="emoji">{{ p.icon }}</span> Happiest at {{ p.label }}</span> }
+            @if (times()[0]; as t) { <span class="chip pink"><span class="emoji">{{ t.icon }}</span> {{ t.label }} felt best</span> }
+          </div>
+        }
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h3>Reflections</h3><span class="meta">{{ reflections().length }} this week</span></div>
+        @for (r of reflections(); track r.reflectionId) {
+          <div class="tint refl"><b>🌙 {{ long(r.reflectionDate) }}</b><p>{{ r.text }}</p></div>
+        } @empty {
+          <p class="muted">No evening reflections this week. You can add one in the app before bed.</p>
+        }
+      </section>
+    </div>
+
+    <p class="hint center">Want the bigger picture? See <a routerLink="/insights">Insights</a> or make your <a routerLink="/wrapped">Capsule Wrapped</a> 🎁</p>
+  }
+</div>
+
+@if (openDay(); as d) {
+  <mc-day-panel [date]="d" (closed)="openDay.set(null)" />
+}

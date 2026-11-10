@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard, authGuard, guestGuard } from './core/guards/auth.guard';
 
-const soon = () => import('./shared/components/coming-soon/coming-soon.component').then(m => m.ComingSoonComponent);
-
 export const routes: Routes = [
   // Sign in / sign up (only when signed out)
   {
@@ -38,8 +36,8 @@ export const routes: Routes = [
       { path: 'journal', title: 'Journal · MoodCapsule', loadComponent: () => import('./features/journal/journal.component').then(m => m.JournalComponent) },
       { path: 'insights', title: 'Insights · MoodCapsule', loadComponent: () => import('./features/insights/insights.component').then(m => m.InsightsComponent) },
       { path: 'capsules', title: 'Time Capsules · MoodCapsule', loadComponent: () => import('./features/capsules/capsules.component').then(m => m.CapsulesComponent) },
-      { path: 'weekly', title: 'Weekly review · MoodCapsule', loadComponent: soon, data: { title: 'Weekly review', emoji: '🗓️' } },
-      { path: 'wrapped', title: 'Capsule Wrapped · MoodCapsule', loadComponent: soon, data: { title: 'Capsule Wrapped', emoji: '🎁' } },
+      { path: 'weekly', title: 'Weekly review · MoodCapsule', loadComponent: () => import('./features/weekly/weekly.component').then(m => m.WeeklyComponent) },
+      { path: 'wrapped', title: 'Capsule Wrapped · MoodCapsule', loadComponent: () => import('./features/wrapped/wrapped.component').then(m => m.WrappedComponent) },
       { path: 'profile', title: 'Profile · MoodCapsule', loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
       { path: 'admin', title: 'Admin · MoodCapsule', canActivate: [adminGuard], loadComponent: () => import('./features/admin/admin.component').then(m => m.AdminComponent) },
 

@@ -1,0 +1,20 @@
+.eyebrow { font-size: 13px; color: var(--text-2); }
+.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+.controls .segmented { align-self: flex-start; }
+.buttons { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 10px; }
+.facts { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; }
+.facts .emoji { width: 22px; display: inline-block; text-align: center; }
+
+.preview { position: relative; display: flex; justify-content: center; }
+.card-canvas {
+  width: 100%; max-width: 460px; aspect-ratio: 1080 / 1350; border-radius: 28px;
+  box-shadow: var(--shadow-pop); background: var(--grad-hero); transition: opacity .2s;
+  &.dim { opacity: .5; }
+}
+.loading {
+  position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: 1;
+  background: var(--surface); border-radius: 999px; padding: 10px 16px; display: flex; gap: 10px; align-items: center;
+  box-shadow: var(--shadow-card); font-size: 13px;
+}
