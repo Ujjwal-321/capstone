@@ -1,0 +1,42 @@
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+.ranges { display: inline-flex; background: rgba(255, 255, 255, .2); border-radius: 999px; padding: 4px; flex-wrap: wrap; }
+.ranges button {
+  border: 0; background: transparent; color: #fff; font: 600 13px var(--font); padding: 6px 14px; border-radius: 999px; cursor: pointer;
+  &.on { background: #fff; color: #6A59E8; }
+}
+.glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; position: relative; z-index: 1; }
+.glance .emoji { font-size: 18px; }
+@media (max-width: 720px) { .glance { grid-template-columns: 1fr; } }
+
+.trend { margin-top: 20px; }
+.cols { margin-top: 20px; align-items: stretch; }
+.insight { margin-top: 12px; color: var(--insight); font-style: italic; font-size: 13px; }
+
+.times { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.time {
+  display: grid; grid-template-columns: 34px 1fr auto; grid-template-rows: auto auto; column-gap: 8px; align-items: center;
+  background: var(--surface-2); border: 1px solid var(--stroke); border-radius: 14px; padding: 10px 12px;
+  .ico { grid-row: span 2; font-size: 24px; }
+  b { font-size: 13.5px; }
+  .score { font-weight: 700; justify-self: end; }
+  .hint { grid-column: 2 / span 2; font-size: 11.5px; }
+  &.none { opacity: .55; }
+}
+@media (max-width: 520px) { .times { grid-template-columns: 1fr; } }
+
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 170px; align-items: end; }
+.wd { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+.wd .val { font-size: 11.5px; font-weight: 600; color: var(--text-2); }
+.wd .col { flex: 1; width: 100%; max-width: 34px; background: var(--stroke); border-radius: 8px 8px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; }
+.wd .colfill { width: 100%; border-radius: 8px 8px 4px 4px; transition: height .6s ease; }
+.wd .lab { font-size: 12px; font-weight: 600; }
+
+.mixbar { display: flex; gap: 2px; height: 16px; border-radius: 999px; overflow: hidden; background: var(--stroke); }
+.mixbar div { height: 100%; transition: width .6s ease; }
+.mixlist { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 13px; }
+.mixlist li { display: flex; align-items: center; gap: 6px; }
+.mixlist i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.mixlist b { margin-left: auto; }
+
+.recap { margin-top: 20px; }
+.recap .tile b { font-size: 17px; }

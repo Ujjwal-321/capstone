@@ -35,8 +35,8 @@ export const routes: Routes = [
     children: [
       { path: 'overview', title: 'Overview · MoodCapsule', loadComponent: () => import('./features/overview/overview.component').then(m => m.OverviewComponent) },
       { path: 'pixels', title: 'Year in Pixels · MoodCapsule', loadComponent: () => import('./features/pixels/pixels.component').then(m => m.PixelsComponent) },
-      { path: 'journal', title: 'Journal · MoodCapsule', loadComponent: soon, data: { title: 'Journal', emoji: '📖' } },
-      { path: 'insights', title: 'Insights · MoodCapsule', loadComponent: soon, data: { title: 'Insights', emoji: '📊' } },
+      { path: 'journal', title: 'Journal · MoodCapsule', loadComponent: () => import('./features/journal/journal.component').then(m => m.JournalComponent) },
+      { path: 'insights', title: 'Insights · MoodCapsule', loadComponent: () => import('./features/insights/insights.component').then(m => m.InsightsComponent) },
       { path: 'capsules', title: 'Time Capsules · MoodCapsule', loadComponent: soon, data: { title: 'Time Capsules', emoji: '🕰️' } },
       { path: 'weekly', title: 'Weekly review · MoodCapsule', loadComponent: soon, data: { title: 'Weekly review', emoji: '🗓️' } },
       { path: 'wrapped', title: 'Capsule Wrapped · MoodCapsule', loadComponent: soon, data: { title: 'Capsule Wrapped', emoji: '🎁' } },

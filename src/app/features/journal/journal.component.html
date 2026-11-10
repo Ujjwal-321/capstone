@@ -1,0 +1,106 @@
+<div class="page">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Reading mode</p>
+      <h1>Journal</h1>
+    </div>
+    <p class="muted count">
+      @if (!loading()) { {{ total() }} moment{{ total() === 1 ? '' : 's' }}{{ filtered() ? ' match' : '' }} }
+    </p>
+  </div>
+
+  <div class="layout">
+    <!-- Filters -->
+    <aside class="card filters" aria-label="Filters">
+      <div class="field">
+        <label for="q">Search your words</label>
+        <input id="q" type="search" placeholder="e.g. gym, midterm, coffee…" [ngModel]="keyword" (ngModelChange)="onKeyword($event)" />
+      </div>
+
+      <div class="field">
+        <label>Place</label>
+        <div class="chips">
+          @for (p of places(); track p.placeId) {
+            <button type="button" class="chip" [class.on]="placeId() === p.placeId" [attr.aria-pressed]="placeId() === p.placeId"
+                    (click)="togglePlace(p.placeId)">
+              <span class="emoji">{{ p.icon }}</span> {{ p.name }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="emoji">Mood</label>
+        <select id="emoji" [ngModel]="emojiId() ?? ''" (ngModelChange)="setEmoji($event)">
+          <option value="">Any mood</option>
+          @for (e of emojis(); track e.emojiId) {
+            <option [value]="e.emojiId">{{ e.symbol }} {{ e.description }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="dates">
+        <div class="field">
+          <label for="from">From</label>
+          <input id="from" type="date" [(ngModel)]="startDate" [max]="endDate || today()" (change)="search()" />
+        </div>
+        <div class="field">
+          <label for="to">To</label>
+          <input id="to" type="date" [(ngModel)]="endDate" [min]="startDate" [max]="today()" (change)="search()" />
+        </div>
+      </div>
+
+      @if (filtered()) {
+        <button type="button" class="btn ghost small block" (click)="clear()">Clear filters</button>
+      }
+      <p class="hint lock">🔒 Moments are locked once saved. That's the idea.</p>
+    </aside>
+
+    <!-- Timeline -->
+    <section class="timeline">
+      @if (error()) {
+        <div class="form-error">{{ error() }} <button type="button" class="link-btn" (click)="search()">Try again</button></div>
+      }
+
+      @if (loading()) {
+        @for (i of [1, 2, 3]; track i) { <div class="card"><div class="skeleton" style="height: 110px"></div></div> }
+      } @else {
+        @for (g of groups(); track g.date) {
+          <article class="card day">
+            <header class="day-head">
+              <h2 [title]="g.full">{{ g.header }}</h2>
+              <span class="avg">avg <span class="emoji">{{ g.face }}</span> {{ g.avg }}</span>
+            </header>
+            @if (g.reflection; as r) {
+              <div class="tint refl"><b>🌙 REFLECTION · locked</b><p>{{ r.text }}</p></div>
+            }
+            @for (m of g.moments; track m.entryId) {
+              <mc-moment-card [moment]="m" />
+            }
+          </article>
+        } @empty {
+          <div class="card">
+            <div class="empty">
+              <span class="big">{{ filtered() ? '🔍' : '📖' }}</span>
+              @if (filtered()) {
+                <h3>No moments match</h3>
+                <p>Try another word, place or date range.</p>
+              } @else {
+                <h3>Your journal is empty</h3>
+                <p>Log your first moment in the MoodCapsule app and it appears here.</p>
+              }
+            </div>
+          </div>
+        }
+
+        @if (!last()) {
+          <button type="button" class="btn ghost more" (click)="more()" [disabled]="loadingMore()">
+            @if (loadingMore()) { <span class="spinner dark"></span> } Load older moments
+          </button>
+        } @else if (groups().length) {
+          <p class="end hint">That's everything 🌙</p>
+        }
+      }
+    </section>
+  </div>
+</div>
