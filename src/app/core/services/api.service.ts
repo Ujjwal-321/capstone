@@ -39,8 +39,9 @@ export class ApiService {
     return this.http.put<ApiResponse<UserProfile>>(`${API}/users/me`, body).pipe(data());
   }
 
-  deleteMe(password: string): Observable<string> {
-    return this.http.delete<ApiResponse<unknown>>(`${API}/users/me`, { body: { password } })
+  /** Confirm with the password, or with a Google ID token for accounts made with Google (they have no password). */
+  deleteMe(confirm: { password?: string; googleIdToken?: string }): Observable<string> {
+    return this.http.delete<ApiResponse<unknown>>(`${API}/users/me`, { body: confirm })
       .pipe(map(res => res.message));
   }
 

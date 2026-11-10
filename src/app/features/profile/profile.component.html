@@ -132,13 +132,16 @@
       Want a copy first? <button type="button" class="link-btn" (click)="exportCsv()">Export your data</button>.</p>
     @if (deleteError()) { <div class="form-error">{{ deleteError() }}</div> }
     <div class="field">
-      <label for="dpw">Your password</label>
-      <input id="dpw" type="password" autocomplete="current-password" [(ngModel)]="deletePassword" />
-      <span class="hint">Signed up with Google? Set a password first with "Forgot password" on the sign-in page.</span>
-    </div>
-    <div class="field">
       <label for="dconf">Type DELETE to confirm</label>
       <input id="dconf" autocomplete="off" [(ngModel)]="deleteConfirm" />
+    </div>
+    <div class="field">
+      <label for="dpw">Your password</label>
+      <input id="dpw" type="password" autocomplete="current-password" [(ngModel)]="deletePassword" />
+    </div>
+    <div class="google-confirm">
+      <p class="hint">Signed up with Google? Confirm with the same Google account instead of a password.</p>
+      <mc-google-button text="continue_with" (token)="deleteWithGoogle($event)" [disabled]="deleteConfirm !== 'DELETE' || deleting()" />
     </div>
     <div class="actions">
       <button type="button" class="btn ghost" (click)="closeDelete()">Cancel</button>
