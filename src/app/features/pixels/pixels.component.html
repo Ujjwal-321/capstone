@@ -1,0 +1,92 @@
+<div class="page">
+  <section class="hero">
+    <div class="head">
+      <div>
+        <h1>Year in Pixels</h1>
+        <p class="sub">Every square is a day, coloured by how it felt. Click one to read it.</p>
+      </div>
+      @if (years().length > 1) {
+        <div class="years" role="tablist" aria-label="Year">
+          @for (y of years(); track y) {
+            <button type="button" role="tab" [class.on]="y === year()" [attr.aria-selected]="y === year()" (click)="year.set(y)">{{ y }}</button>
+          }
+        </div>
+      }
+    </div>
+    <div class="glance">
+      <div class="glass"><b>{{ stats().days }}</b><span>days logged in {{ year() }}</span></div>
+      <div class="glass"><b>{{ stats().moments }}</b><span>moments</span></div>
+      <div class="glass"><b><span class="emoji">{{ stats().face }}</span> {{ stats().avg }}</b><span>average day</span></div>
+      <div class="glass"><b>{{ stats().best }}</b><span>best month</span></div>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="form-error" style="margin-top: 16px">{{ error() }} <button type="button" class="link-btn" (click)="load()">Try again</button></div>
+  }
+
+  <div class="layout">
+    <section class="card grid-card">
+      @if (points() === null && !error()) {
+        <div class="skeleton" style="height: 520px"></div>
+      } @else {
+        <div class="scroll">
+          <table class="pixels" [attr.aria-label]="'Mood pixels for ' + year()">
+            <thead>
+              <tr><th></th>@for (m of months; track m) { <th scope="col">{{ m.charAt(0) }}<span class="sr-only">{{ m }}</span></th> }</tr>
+            </thead>
+            <tbody>
+              @for (row of rows(); track $index; let d = $index) {
+                <tr>
+                  <th scope="row">{{ d + 1 }}</th>
+                  @for (p of row; track p.date) {
+                    <td>
+                      @if (p.valid) {
+                        <button type="button" class="px" [class.future]="p.future" [class.today]="p.date === today()"
+                                [style.background]="p.color" [title]="p.title" [attr.aria-label]="p.title || p.date"
+                                [disabled]="p.future" (click)="open(p)"></button>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="legend">
+          @for (l of legend; track l.level) {
+            <span><i [style.background]="'var(--mood-' + l.level + ')'"></i>{{ l.label }}</span>
+          }
+          <span><i style="background: var(--mood-0)"></i>Not logged</span>
+        </div>
+        @if (partialYear()) {
+          <p class="hint">Days before {{ windowStart() }} aren't shown here; you can still read them in the Journal.</p>
+        }
+      }
+    </section>
+
+    <section class="card months-card">
+      <div class="card-head"><h3>Month by month</h3><span class="meta">{{ year() }}</span></div>
+      @for (m of monthStats(); track m.name) {
+        <div class="month" [class.none]="!m.days">
+          <span class="mname">{{ m.short }}</span>
+          <div class="track"><div class="fill" [style.width.%]="m.avg ? (m.avg / 5) * 100 : 0" [style.background]="monthColor(m.avg)"></div></div>
+          <b>{{ score1(m.avg) }}</b>
+          <span class="mdays">{{ m.days ? m.days + 'd' : '' }}</span>
+        </div>
+      }
+      <div class="tint note">
+        <span class="emoji">🌟</span>
+        @if (stats().great > 0) {
+          <span>You had <b>{{ stats().great }}</b> great day{{ stats().great === 1 ? '' : 's' }} this year. Click the pink squares to relive them.</span>
+        } @else {
+          <span>Your great days will glow pink here. Keep logging!</span>
+        }
+      </div>
+    </section>
+  </div>
+</div>
+
+@if (openDay(); as d) {
+  <mc-day-panel [date]="d" (closed)="openDay.set(null)" />
+}

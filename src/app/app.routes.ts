@@ -33,8 +33,8 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./shared/components/layout/layout.component').then(m => m.LayoutComponent),
     children: [
-      { path: 'overview', title: 'Overview · MoodCapsule', loadComponent: soon, data: { title: 'Overview', emoji: '🏠' } },
-      { path: 'pixels', title: 'Year in Pixels · MoodCapsule', loadComponent: soon, data: { title: 'Year in Pixels', emoji: '🟪' } },
+      { path: 'overview', title: 'Overview · MoodCapsule', loadComponent: () => import('./features/overview/overview.component').then(m => m.OverviewComponent) },
+      { path: 'pixels', title: 'Year in Pixels · MoodCapsule', loadComponent: () => import('./features/pixels/pixels.component').then(m => m.PixelsComponent) },
       { path: 'journal', title: 'Journal · MoodCapsule', loadComponent: soon, data: { title: 'Journal', emoji: '📖' } },
       { path: 'insights', title: 'Insights · MoodCapsule', loadComponent: soon, data: { title: 'Insights', emoji: '📊' } },
       { path: 'capsules', title: 'Time Capsules · MoodCapsule', loadComponent: soon, data: { title: 'Time Capsules', emoji: '🕰️' } },
