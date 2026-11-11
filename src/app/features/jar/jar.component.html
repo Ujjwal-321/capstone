@@ -1,0 +1,87 @@
+<div class="page">
+  <section class="hero">
+    <div class="head">
+      <div>
+        <h1>Mood Jar 🫙</h1>
+        <p class="sub">Every moment is a marble in its mood colour. Drag them, fling them, shake the jar.</p>
+      </div>
+      <div class="modes" role="tablist" aria-label="Jar">
+        <button type="button" role="tab" [class.on]="mode() === 'month'" [attr.aria-selected]="mode() === 'month'" (click)="setMode('month')">Month</button>
+        <button type="button" role="tab" [class.on]="mode() === 'year'" [attr.aria-selected]="mode() === 'year'" (click)="setMode('year')">Year</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="card jar-card">
+      <div class="toolbar">
+        @if (mode() === 'month') {
+          <select class="input month" [ngModel]="month()" (ngModelChange)="setMonth($event)" aria-label="Month">
+            @for (o of months(); track o.key) { <option [value]="o.key">{{ o.label }}</option> }
+          </select>
+        } @else {
+          <span class="chip">One marble per day</span>
+        }
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost small" (click)="shake()" title="Shake the jar">🫨 Shake</button>
+        <button type="button" class="btn ghost small" (click)="refill()" title="Drop them in again">🔁 Refill</button>
+        @if (touchDevice) {
+          <button type="button" class="btn ghost small" [class.active]="tilting()" (click)="toggleTilt()">📱 {{ tilting() ? 'Stop tilt' : 'Tilt' }}</button>
+        }
+      </div>
+
+      <div class="stage" #box>
+        <canvas #jar class="jar" role="img" [attr.aria-label]="title() + ': ' + stats().total + ' marbles'"
+                (pointerdown)="down($event)" (pointermove)="move($event)" (pointerup)="up()" (pointercancel)="up()" (pointerleave)="leave()"></canvas>
+        @if (hover(); as h) {
+          <div class="tip" [style.left.px]="h.x" [style.top.px]="h.y">{{ h.label }}</div>
+        }
+        @if (items() === null) {
+          <div class="state"><span class="spinner dark"></span> Filling your jar…</div>
+        } @else if (!items()!.length && !error()) {
+          <div class="state empty-state">
+            <span class="emoji big">🫧</span>
+            <b>This jar is empty</b>
+            <span>Moments you log on your phone drop in here.</span>
+          </div>
+        }
+      </div>
+      @if (error()) { <div class="form-error">{{ error() }} <button type="button" class="link-btn" (click)="load()">Try again</button></div> }
+      <p class="hint center">{{ touchDevice ? 'Drag a marble to fling it, or tap Tilt and move your phone.' : 'Hover a marble to see its moment. Drag to fling it.' }}</p>
+    </section>
+
+    <aside class="stack">
+      <section class="card">
+        <div class="card-head"><h3>{{ title() }}</h3></div>
+        <div class="big-stat">
+          <b>{{ stats().total }}</b>
+          <span>{{ mode() === 'year' ? 'days' : 'moments' }} in the jar</span>
+        </div>
+        <div class="big-stat">
+          <b>{{ stats().brightPct }}%</b>
+          <span>glow pink (good or great)</span>
+        </div>
+        <div class="big-stat">
+          <b class="emoji">{{ stats().top }}</b>
+          <span>the marble you see most</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h3>Colours</h3></div>
+        <div class="mixbar">
+          @for (m of stats().mix; track m.level) {
+            @if (m.n) { <div [style.width.%]="m.pct" [style.background]="'var(--mood-' + m.level + ')'"></div> }
+          }
+        </div>
+        <ul class="legend">
+          @for (l of legend; track l.level) {
+            <li><i [style.background]="'var(--mood-' + l.level + ')'"></i>{{ l.face }} {{ l.label }}</li>
+          }
+        </ul>
+      </section>
+
+      <button type="button" class="btn block" (click)="saveImage()" [disabled]="!items()?.length">⬇️ Save jar as image</button>
+    </aside>
+  </div>
+</div>

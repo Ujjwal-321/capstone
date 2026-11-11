@@ -29,6 +29,7 @@ export class LayoutComponent implements OnInit {
   readonly look: NavItem[] = [
     { path: '/overview', label: 'Overview', icon: '🏠' },
     { path: '/pixels', label: 'Year in Pixels', icon: '🟪' },
+    { path: '/jar', label: 'Mood Jar', icon: '🫙' },
     { path: '/journal', label: 'Journal', icon: '📖' },
     { path: '/insights', label: 'Insights', icon: '📊' }
   ];
