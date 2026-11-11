@@ -39,6 +39,7 @@ export const routes: Routes = [
     children: [
       { path: 'overview', title: 'Overview · MoodCapsule', loadComponent: () => import('./features/overview/overview.component').then(m => m.OverviewComponent) },
       { path: 'pixels', title: 'Year in Pixels · MoodCapsule', loadComponent: () => import('./features/pixels/pixels.component').then(m => m.PixelsComponent) },
+      { path: 'jar', title: 'Mood Jar · MoodCapsule', loadComponent: () => import('./features/jar/jar.component').then(m => m.JarComponent) },
       { path: 'journal', title: 'Journal · MoodCapsule', loadComponent: () => import('./features/journal/journal.component').then(m => m.JournalComponent) },
       { path: 'insights', title: 'Insights · MoodCapsule', loadComponent: () => import('./features/insights/insights.component').then(m => m.InsightsComponent) },
       { path: 'capsules', title: 'Time Capsules · MoodCapsule', loadComponent: () => import('./features/capsules/capsules.component').then(m => m.CapsulesComponent) },

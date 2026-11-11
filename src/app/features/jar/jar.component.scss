@@ -1,0 +1,37 @@
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; position: relative; z-index: 1; }
+.modes { display: inline-flex; background: rgba(255, 255, 255, .2); border-radius: 999px; padding: 4px; }
+.modes button {
+  border: 0; background: transparent; color: #fff; font: 600 13px var(--font); padding: 6px 16px; border-radius: 999px; cursor: pointer;
+  &.on { background: #fff; color: #6A59E8; }
+}
+
+.layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr); gap: 20px; margin-top: 20px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.toolbar .month { max-width: 220px; padding: 8px 12px; font-size: 13px; }
+.btn.active { border-color: var(--primary); background: var(--chip-lav-bg); }
+
+.stage { position: relative; width: 100%; }
+.jar { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
+.jar:active { cursor: grabbing; }
+.tip {
+  position: absolute; transform: translate(-50%, calc(-100% - 14px)); pointer-events: none; white-space: nowrap;
+  background: #1F1B2D; color: #fff; border-radius: 10px; padding: 6px 10px; font-size: 12px; box-shadow: var(--shadow-pop); z-index: 2;
+}
+.state {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  color: var(--text-2); font-size: 13px; pointer-events: none;
+}
+.empty-state .big { font-size: 40px; }
+.empty-state b { color: var(--ink); }
+.center { text-align: center; margin-top: 6px; }
+
+.big-stat { padding: 8px 0; border-bottom: 1px solid var(--stroke); &:last-child { border-bottom: 0; }
+  b { display: block; font-size: 28px; font-weight: 700; line-height: 1.2; }
+  span { font-size: 12.5px; color: var(--text-2); }
+}
+.mixbar { display: flex; gap: 2px; height: 14px; border-radius: 999px; overflow: hidden; background: var(--stroke); }
+.legend { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12.5px; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
